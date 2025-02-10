@@ -6,49 +6,31 @@ import dynamic from 'next/dynamic';
 console.log('Loading ClientPage module');
 
 // Dynamically import components with no SSR
-const NoSSRTerminalBoot = dynamic(
-  () => {
-    console.log('Loading TerminalBoot component...');
-    return import('./TerminalBoot').then(mod => {
-      console.log('TerminalBoot module loaded:', mod);
-      return mod.default;
-    });
+const NoSSRTerminalBoot = dynamic(() => import('./TerminalBoot'), {
+  ssr: false,
+  loading: () => {
+    console.log('Showing TerminalBoot loading state');
+    return (
+      <div className="fixed inset-0 bg-black text-green-500 font-mono flex items-center justify-center">
+        <div className="animate-pulse">Loading terminal...</div>
+      </div>
+    );
   },
-  {
-    ssr: false,
-    loading: () => {
-      console.log('Showing TerminalBoot loading state');
-      return (
-        <div className="fixed inset-0 bg-black text-green-500 font-mono flex items-center justify-center">
-          <div className="animate-pulse">Loading terminal...</div>
-        </div>
-      );
-    },
-  }
-);
+});
 
-const NoSSRDesktopInterface = dynamic(
-  () => {
-    console.log('Loading DesktopInterface component...');
-    return import('./DesktopInterface').then(mod => {
-      console.log('DesktopInterface module loaded:', mod);
-      return mod.default;
-    });
-  },
-  {
-    ssr: false,
-    loading: () => {
-      console.log('Showing DesktopInterface loading state');
-      return (
-        <div className="fixed inset-0 bg-black flex items-center justify-center">
-          <div className="text-green-500 font-mono animate-pulse">
-            Loading desktop...
-          </div>
+const NoSSRDesktopInterface = dynamic(() => import('./DesktopInterface'), {
+  ssr: false,
+  loading: () => {
+    console.log('Showing DesktopInterface loading state');
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <div className="text-green-500 font-mono animate-pulse">
+          Loading desktop...
         </div>
-      );
-    },
-  }
-);
+      </div>
+    );
+  },
+});
 
 export default function ClientPage() {
   console.log('Rendering ClientPage');
