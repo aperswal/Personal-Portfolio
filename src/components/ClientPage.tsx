@@ -6,39 +6,49 @@ import dynamic from 'next/dynamic';
 // Dynamically import components with no SSR
 const NoSSRTerminalBoot = dynamic(() => import('@/components/TerminalBoot'), {
   ssr: false,
-  loading: () => (
-    <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
-      <div className="animate-pulse">Loading terminal...</div>
-    </div>
-  ),
+  loading: () => {
+    console.log('Loading TerminalBoot component...');
+    return (
+      <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">Loading terminal...</div>
+      </div>
+    );
+  },
 });
 
 const NoSSRDesktopInterface = dynamic(() => import('@/components/DesktopInterface'), {
   ssr: false,
-  loading: () => (
-    <div className="bg-black min-h-screen flex items-center justify-center">
-      <div className="text-green-500 font-mono animate-pulse">
-        Loading desktop...
+  loading: () => {
+    console.log('Loading DesktopInterface component...');
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-green-500 font-mono animate-pulse">
+          Loading desktop...
+        </div>
       </div>
-    </div>
-  ),
+    );
+  },
 });
 
 export default function ClientPage() {
+  console.log('Rendering ClientPage');
   const [bootComplete, setBootComplete] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    console.log('ClientPage mounted');
     setIsMounted(true);
     
     // Check if we have a stored session
     if (typeof window !== 'undefined') {
       const hasCompleted = sessionStorage.getItem('bootComplete') === 'true';
+      console.log('Session storage bootComplete:', hasCompleted);
       setBootComplete(hasCompleted);
     }
 
     // Add event listener for when the tab becomes visible again
     const handleVisibilityChange = () => {
+      console.log('Visibility changed:', document.visibilityState);
       if (document.visibilityState === 'visible') {
         // Check if it's been more than 30 minutes since last visit
         const lastVisit = sessionStorage.getItem('lastVisitTime');
@@ -46,8 +56,10 @@ export default function ClientPage() {
         
         if (lastVisit) {
           const timeDiff = currentTime - parseInt(lastVisit);
+          console.log('Time since last visit (minutes):', timeDiff / 1000 / 60);
           // If it's been more than 30 minutes, reset the boot sequence
           if (timeDiff > 30 * 60 * 1000) {
+            console.log('Resetting due to inactivity');
             handleReset();
           }
         }
@@ -64,6 +76,7 @@ export default function ClientPage() {
     }
     
     return () => {
+      console.log('ClientPage unmounting');
       if (typeof window !== 'undefined') {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
       }
@@ -71,6 +84,7 @@ export default function ClientPage() {
   }, []);
 
   const handleBootComplete = () => {
+    console.log('Boot sequence completed');
     setBootComplete(true);
     // Store in sessionStorage instead of localStorage
     sessionStorage.setItem('bootComplete', 'true');
@@ -78,6 +92,7 @@ export default function ClientPage() {
   };
 
   const handleReset = () => {
+    console.log('Resetting boot sequence');
     setBootComplete(false);
     sessionStorage.removeItem('bootComplete');
     sessionStorage.removeItem('lastVisitTime');
@@ -85,6 +100,7 @@ export default function ClientPage() {
 
   // Show nothing until mounted
   if (!isMounted) {
+    console.log('ClientPage not yet mounted');
     return (
       <main className="bg-black min-h-screen flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
@@ -94,6 +110,7 @@ export default function ClientPage() {
     );
   }
 
+  console.log('Rendering main content, bootComplete:', bootComplete);
   return (
     <main className="relative">
       {!bootComplete ? (

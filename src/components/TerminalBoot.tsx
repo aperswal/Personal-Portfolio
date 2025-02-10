@@ -27,6 +27,7 @@ const bootSequence: BootMessage[] = [
 ];
 
 export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
+  console.log('Rendering TerminalBoot');
   const [messages, setMessages] = useState<string[]>([]);
   const [isBooted, setIsBooted] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -39,24 +40,27 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
+    console.log('TerminalBoot mounted');
     setIsMounted(true);
   }, []);
 
   // Type out the current message character by character
   useEffect(() => {
     if (!isMounted || !messages[currentTypingIndex]) return;
+    console.log('Typing message:', currentTypingIndex, messages[currentTypingIndex]);
 
     const message = messages[currentTypingIndex];
     if (currentMessageChars.length < message.length) {
       const timeout = setTimeout(() => {
         setCurrentMessageChars(prev => message.slice(0, prev.length + 1));
         setIsTyping(true);
-      }, 30); // Adjust typing speed here
+      }, 30);
 
       return () => clearTimeout(timeout);
     } else {
       setIsTyping(false);
       if (currentTypingIndex < messages.length - 1) {
+        console.log('Moving to next message');
         const timeout = setTimeout(() => {
           setCurrentTypingIndex(prev => prev + 1);
           setCurrentMessageChars('');
@@ -68,6 +72,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
 
   useEffect(() => {
     if (!isMounted) return;
+    console.log('Starting boot sequence');
     
     let currentIndex = 0;
     let timeoutId: NodeJS.Timeout;
@@ -75,11 +80,13 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
     const showMessage = () => {
       if (currentIndex < bootSequence.length) {
         const message = bootSequence[currentIndex];
+        console.log('Showing boot message:', message.text);
         setMessages(prev => [...prev, message.text]);
         currentIndex++;
         
         timeoutId = setTimeout(showMessage, message.delay);
       } else {
+        console.log('Boot sequence messages complete');
         setIsBooted(true);
         setShowInput(true);
       }
@@ -88,6 +95,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
     timeoutId = setTimeout(showMessage, 1000);
 
     return () => {
+      console.log('Cleaning up boot sequence');
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
@@ -97,6 +105,8 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isTyping) {
       const command = userInput.toLowerCase().trim();
+      console.log('Command entered:', command);
+      
       if (command) {
         setCommandHistory(prev => [...prev, command]);
         setHistoryIndex(-1);
@@ -105,9 +115,11 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
       setUserInput('');
 
       if (command === 'run adi.exe') {
+        console.log('Launching desktop interface');
         setMessages(prev => [...prev, 'Launching ADI interface...']);
         setTimeout(onBootComplete, 1000);
       } else if (command === 'help') {
+        console.log('Showing help menu');
         setMessages(prev => [...prev, 
           'Available commands:', 
           '  - run adi.exe: Launch the ADI interface', 
@@ -116,10 +128,12 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
           '  - about: Show system information'
         ]);
       } else if (command === 'clear') {
+        console.log('Clearing terminal');
         setMessages([]);
         setCurrentTypingIndex(0);
         setCurrentMessageChars('');
       } else if (command === 'about') {
+        console.log('Showing about information');
         setMessages(prev => [...prev,
           '=== ADI System v1.0.0 ===',
           'A personal portfolio interface',
@@ -127,6 +141,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
           'Type "run adi.exe" to start'
         ]);
       } else if (command) {
+        console.log('Command not recognized:', command);
         setMessages(prev => [...prev, 
           `Command not recognized: ${command}`, 
           'Type "help" for available commands'
@@ -137,6 +152,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
       if (commandHistory.length > 0) {
         const newIndex = historyIndex + 1;
         if (newIndex < commandHistory.length) {
+          console.log('Navigating command history up:', commandHistory[commandHistory.length - 1 - newIndex]);
           setHistoryIndex(newIndex);
           setUserInput(commandHistory[commandHistory.length - 1 - newIndex]);
         }
@@ -147,8 +163,10 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
         const newIndex = historyIndex - 1;
         setHistoryIndex(newIndex);
         if (newIndex >= 0) {
+          console.log('Navigating command history down:', commandHistory[commandHistory.length - 1 - newIndex]);
           setUserInput(commandHistory[commandHistory.length - 1 - newIndex]);
         } else {
+          console.log('Reached end of command history');
           setUserInput('');
         }
       }
@@ -156,6 +174,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
   };
 
   if (!isMounted) {
+    console.log('TerminalBoot not yet mounted');
     return (
       <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Loading terminal...</div>
@@ -163,6 +182,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
     );
   }
 
+  console.log('Rendering terminal interface, messages:', messages.length);
   return (
     <div className="bg-black text-green-500 font-mono p-4 min-h-screen">
       <div className="mb-4">
