@@ -11,60 +11,83 @@ const nextConfig = {
     unoptimized: true,
   },
   webpack: (config, { isServer }) => {
-    // Add handling for dynamic imports
     config.experiments = {
       ...config.experiments,
       topLevelAwait: true,
     };
     
-    // Optimize bundle size
+    // Optimize chunk loading
     config.optimization = {
       ...config.optimization,
       moduleIds: 'deterministic',
+      chunkIds: 'named',
       splitChunks: {
         chunks: 'all',
+        minSize: 20000,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          framework: {
+            name: 'framework',
+            test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+            priority: 40,
+            enforce: true,
+          },
+          lib: {
+            test: /[\\/]node_modules[\\/]/,
+            name(module, chunks, cacheGroupKey) {
+              const moduleFileName = module
+                .identifier()
+                .split('/')
+                .reduceRight((item) => item);
+              return `${cacheGroupKey}-${moduleFileName}`;
+            },
+            priority: 30,
+            minChunks: 1,
+            reuseExistingChunk: true,
+          },
+          commons: {
+            name: 'commons',
+            minChunks: 2,
+            priority: 20,
+          },
+          shared: {
+            name(module, chunks) {
+              return chunks.map(chunk => chunk.name).join('~');
+            },
+            priority: 10,
+            minChunks: 2,
+            reuseExistingChunk: true,
+          },
+        },
       },
     };
 
     return config;
   },
-  // Ensure proper output
   output: 'standalone',
-  // Add proper trailing slash handling
-  trailingSlash: false,
-  // Ensure proper asset prefix
-  assetPrefix: '',
-  async headers() {
+  trailingSlash: true,
+  poweredByHeader: false,
+  headers: async () => {
     return [
       {
-        source: '/robots.txt',
+        source: '/:path*',
         headers: [
           {
-            key: 'Content-Type',
-            value: 'text/plain',
-          },
-        ],
-      },
-      {
-        source: '/sitemap.xml',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/xml',
-          },
-        ],
-      },
-      {
-        source: '/manifest.json',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/json',
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
     ];
   },
+  // Add proper redirects
+  redirects: async () => [],
+  // Add proper rewrites
+  rewrites: async () => [],
 }
 
 module.exports = nextConfig 

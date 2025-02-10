@@ -1,36 +1,82 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 console.log('Loading ClientPage module');
 
-// Dynamically import components with no SSR
-const NoSSRTerminalBoot = dynamic(() => import('./TerminalBoot'), {
-  ssr: false,
-  loading: () => {
-    console.log('Showing TerminalBoot loading state');
-    return (
+// Dynamically import components with no SSR and proper error boundaries
+const NoSSRTerminalBoot = dynamic(
+  () => {
+    console.log('Loading TerminalBoot component');
+    return import('./TerminalBoot')
+      .then(mod => {
+        console.log('TerminalBoot loaded successfully');
+        return mod;
+      })
+      .catch(err => {
+        console.error('Error loading TerminalBoot:', err);
+        return () => (
+          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
+            <div>
+              <div className="mb-2">Error loading terminal component</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        );
+      });
+  },
+  {
+    ssr: false,
+    loading: () => (
       <div className="fixed inset-0 bg-black text-green-500 font-mono flex items-center justify-center">
         <div className="animate-pulse">Loading terminal...</div>
       </div>
-    );
-  },
-});
+    ),
+  }
+);
 
-const NoSSRDesktopInterface = dynamic(() => import('./DesktopInterface'), {
-  ssr: false,
-  loading: () => {
-    console.log('Showing DesktopInterface loading state');
-    return (
+const NoSSRDesktopInterface = dynamic(
+  () => {
+    console.log('Loading DesktopInterface component');
+    return import('./DesktopInterface')
+      .then(mod => {
+        console.log('DesktopInterface loaded successfully');
+        return mod;
+      })
+      .catch(err => {
+        console.error('Error loading DesktopInterface:', err);
+        return () => (
+          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
+            <div>
+              <div className="mb-2">Error loading desktop component</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        );
+      });
+  },
+  {
+    ssr: false,
+    loading: () => (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
           Loading desktop...
         </div>
       </div>
-    );
-  },
-});
+    ),
+  }
+);
 
 export default function ClientPage() {
   console.log('Rendering ClientPage');
