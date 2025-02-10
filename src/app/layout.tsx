@@ -1,9 +1,6 @@
-'use client';
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { useEffect, useState } from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,24 +31,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <html lang="en">
-        <body className={inter.className}>
-          <div className="h-screen w-screen flex items-center justify-center bg-gray-900">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
-          </div>
-        </body>
-      </html>
-    );
-  }
-
   return (
     <html lang="en">
       <head>

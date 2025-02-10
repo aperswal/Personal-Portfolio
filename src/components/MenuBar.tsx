@@ -1,4 +1,7 @@
-import { useState } from 'react';
+"use client";
+
+import { useState, useEffect } from 'react';
+import { Battery, Wifi, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MenuItem {
