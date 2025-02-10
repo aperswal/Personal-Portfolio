@@ -4,15 +4,25 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import components with no SSR
-const NoSSRTerminalBoot = dynamic(
-  () => import('@/components/TerminalBoot').then(mod => mod.TerminalBoot),
-  { ssr: false }
-);
+const NoSSRTerminalBoot = dynamic(() => import('@/components/TerminalBoot'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+      <div className="animate-pulse">Loading terminal...</div>
+    </div>
+  ),
+});
 
-const NoSSRDesktopInterface = dynamic(
-  () => import('@/components/DesktopInterface').then(mod => mod.DesktopInterface),
-  { ssr: false }
-);
+const NoSSRDesktopInterface = dynamic(() => import('@/components/DesktopInterface'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-black min-h-screen flex items-center justify-center">
+      <div className="text-green-500 font-mono animate-pulse">
+        Loading desktop...
+      </div>
+    </div>
+  ),
+});
 
 export default function ClientPage() {
   const [bootComplete, setBootComplete] = useState(false);

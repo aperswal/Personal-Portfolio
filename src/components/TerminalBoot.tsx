@@ -1,6 +1,5 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
 import { cn } from '@/lib/utils';
-import { withNoSSR } from '@/lib/utils/dynamic';
 
 interface BootMessage {
   text: string;
@@ -27,10 +26,7 @@ const bootSequence: BootMessage[] = [
   { text: "Type 'run adi.exe' to launch interface...", delay: 500 },
 ];
 
-// Wrap the component with withNoSSR and properly type it
-export const TerminalBoot = withNoSSR(TerminalBootComponent) as React.FC<TerminalBootProps>;
-
-function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
+export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
   const [messages, setMessages] = useState<string[]>([]);
   const [isBooted, setIsBooted] = useState(false);
   const [userInput, setUserInput] = useState('');

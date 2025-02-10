@@ -64,6 +64,7 @@ const DesktopInterfaceComponent = () => {
   const [showDock, setShowDock] = useState(true);
   const dockTimeoutRef = useRef<NodeJS.Timeout>();
   const [isWallpaperTransitioning, setIsWallpaperTransitioning] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const handleWindowOpen = (id: string) => {
     setActiveWindows(prev => new Set([...prev, id]));
@@ -302,6 +303,20 @@ const DesktopInterfaceComponent = () => {
       }
     };
   }, [maximizedWindow]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-green-500 font-mono animate-pulse">
+          Loading desktop...
+        </div>
+      </div>
+    );
+  }
 
   if (isMobile && !ignoreMobileWarning) {
     return <MobileWarning />;
