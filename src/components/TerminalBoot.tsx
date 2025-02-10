@@ -36,10 +36,39 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
   const [userInput, setUserInput] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
+  const [currentMessageChars, setCurrentMessageChars] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Type out the current message character by character
+  useEffect(() => {
+    if (!isMounted || !messages[currentTypingIndex]) return;
+
+    const message = messages[currentTypingIndex];
+    if (currentMessageChars.length < message.length) {
+      const timeout = setTimeout(() => {
+        setCurrentMessageChars(prev => message.slice(0, prev.length + 1));
+        setIsTyping(true);
+      }, 30); // Adjust typing speed here
+
+      return () => clearTimeout(timeout);
+    } else {
+      setIsTyping(false);
+      if (currentTypingIndex < messages.length - 1) {
+        const timeout = setTimeout(() => {
+          setCurrentTypingIndex(prev => prev + 1);
+          setCurrentMessageChars('');
+        }, 50);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [currentMessageChars, currentTypingIndex, messages, isMounted]);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -60,10 +89,8 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
       }
     };
 
-    // Start the boot sequence
-    timeoutId = setTimeout(showMessage, 1000); // Initial delay
+    timeoutId = setTimeout(showMessage, 1000);
 
-    // Cleanup timeouts on unmount
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -72,9 +99,13 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
   }, [isMounted]);
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isTyping) {
       const command = userInput.toLowerCase().trim();
-      setMessages(prev => [...prev, `> ${userInput}`]);
+      if (command) {
+        setCommandHistory(prev => [...prev, command]);
+        setHistoryIndex(-1);
+        setMessages(prev => [...prev, `> ${userInput}`]);
+      }
       setUserInput('');
 
       if (command === 'run adi.exe') {
@@ -90,6 +121,8 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
         ]);
       } else if (command === 'clear') {
         setMessages([]);
+        setCurrentTypingIndex(0);
+        setCurrentMessageChars('');
       } else if (command === 'about') {
         setMessages(prev => [...prev,
           '=== ADI System v1.0.0 ===',
@@ -97,17 +130,41 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
           'Created with Next.js & TypeScript',
           'Type "run adi.exe" to start'
         ]);
-      } else {
+      } else if (command) {
         setMessages(prev => [...prev, 
           `Command not recognized: ${command}`, 
           'Type "help" for available commands'
         ]);
       }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const newIndex = historyIndex + 1;
+        if (newIndex < commandHistory.length) {
+          setHistoryIndex(newIndex);
+          setUserInput(commandHistory[commandHistory.length - 1 - newIndex]);
+        }
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex > -1) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        if (newIndex >= 0) {
+          setUserInput(commandHistory[commandHistory.length - 1 - newIndex]);
+        } else {
+          setUserInput('');
+        }
+      }
     }
   };
 
   if (!isMounted) {
-    return null;
+    return (
+      <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">Loading terminal...</div>
+      </div>
+    );
   }
 
   return (
@@ -116,13 +173,16 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
         {messages.map((message, index) => (
           <div 
             key={index} 
-            className="typing-animation"
-            style={{ 
-              animationDelay: `${index * 50}ms`,
-              opacity: 0
-            }}
+            className={cn(
+              "transition-opacity duration-100",
+              index === currentTypingIndex ? "border-r border-green-500" : ""
+            )}
           >
-            {message.startsWith('>') ? message : <><span className="text-green-300">{'>'}</span> {message}</>}
+            {index < currentTypingIndex ? (
+              message.startsWith('>') ? message : <><span className="text-green-300">{'>'}</span> {message}</>
+            ) : index === currentTypingIndex ? (
+              message.startsWith('>') ? currentMessageChars : <><span className="text-green-300">{'>'}</span> {currentMessageChars}</>
+            ) : null}
           </div>
         ))}
       </div>
@@ -133,9 +193,10 @@ function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             className="flex-1 bg-transparent border-none outline-none text-green-500 ml-2"
             autoFocus
+            disabled={isTyping}
           />
         </div>
       )}
