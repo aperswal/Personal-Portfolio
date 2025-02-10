@@ -10,9 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    missingSuspenseWithCSRError: false,
-  },
   async headers() {
     return [
       {
