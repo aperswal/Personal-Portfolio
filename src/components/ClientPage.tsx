@@ -3,18 +3,23 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
+console.log('Loading ClientPage module');
+
 // Dynamically import components with no SSR
 const NoSSRTerminalBoot = dynamic(
-  () => import('@/components/TerminalBoot').then(mod => {
-    console.log('TerminalBoot module loaded:', mod);
-    return mod.default;
-  }),
+  () => {
+    console.log('Loading TerminalBoot component...');
+    return import('./TerminalBoot').then(mod => {
+      console.log('TerminalBoot module loaded:', mod);
+      return mod.default;
+    });
+  },
   {
     ssr: false,
     loading: () => {
-      console.log('Loading TerminalBoot component...');
+      console.log('Showing TerminalBoot loading state');
       return (
-        <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+        <div className="fixed inset-0 bg-black text-green-500 font-mono flex items-center justify-center">
           <div className="animate-pulse">Loading terminal...</div>
         </div>
       );
@@ -23,16 +28,19 @@ const NoSSRTerminalBoot = dynamic(
 );
 
 const NoSSRDesktopInterface = dynamic(
-  () => import('@/components/DesktopInterface').then(mod => {
-    console.log('DesktopInterface module loaded:', mod);
-    return mod.default;
-  }),
+  () => {
+    console.log('Loading DesktopInterface component...');
+    return import('./DesktopInterface').then(mod => {
+      console.log('DesktopInterface module loaded:', mod);
+      return mod.default;
+    });
+  },
   {
     ssr: false,
     loading: () => {
-      console.log('Loading DesktopInterface component...');
+      console.log('Showing DesktopInterface loading state');
       return (
-        <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="fixed inset-0 bg-black flex items-center justify-center">
           <div className="text-green-500 font-mono animate-pulse">
             Loading desktop...
           </div>
@@ -54,6 +62,7 @@ export default function ClientPage() {
 
     const initializeClient = async () => {
       try {
+        console.log('Initializing client...');
         setIsLoading(true);
         // Check if we have a stored session
         if (typeof window !== 'undefined') {
@@ -63,6 +72,7 @@ export default function ClientPage() {
             setBootComplete(hasCompleted);
             setIsMounted(true);
             setIsLoading(false);
+            console.log('Client initialized successfully');
           }
         }
       } catch (error) {
@@ -134,17 +144,17 @@ export default function ClientPage() {
   if (isLoading || !isMounted) {
     console.log('ClientPage loading or not mounted');
     return (
-      <main className="bg-black min-h-screen flex items-center justify-center">
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
           Initializing system...
         </div>
-      </main>
+      </div>
     );
   }
 
   console.log('Rendering main content, bootComplete:', bootComplete);
   return (
-    <main className="relative">
+    <div className="fixed inset-0 bg-black">
       {!bootComplete ? (
         <NoSSRTerminalBoot onBootComplete={handleBootComplete} />
       ) : (
@@ -158,6 +168,6 @@ export default function ClientPage() {
           </button>
         </>
       )}
-    </main>
+    </div>
   );
 } 
