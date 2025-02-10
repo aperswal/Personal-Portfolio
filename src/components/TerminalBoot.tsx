@@ -1,9 +1,14 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { withNoSSR } from '@/lib/utils/dynamic';
 
 interface BootMessage {
   text: string;
   delay: number;
+}
+
+export interface TerminalBootProps {
+  onBootComplete: () => void;
 }
 
 const bootSequence: BootMessage[] = [
@@ -22,13 +27,23 @@ const bootSequence: BootMessage[] = [
   { text: "Type 'run adi.exe' to launch interface...", delay: 500 },
 ];
 
-export function TerminalBoot({ onBootComplete }: { onBootComplete: () => void }) {
+// Wrap the component with withNoSSR and properly type it
+export const TerminalBoot = withNoSSR(TerminalBootComponent) as React.FC<TerminalBootProps>;
+
+function TerminalBootComponent({ onBootComplete }: TerminalBootProps) {
   const [messages, setMessages] = useState<string[]>([]);
   const [isBooted, setIsBooted] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     let currentIndex = 0;
     let timeoutId: NodeJS.Timeout;
     
@@ -54,7 +69,7 @@ export function TerminalBoot({ onBootComplete }: { onBootComplete: () => void })
         clearTimeout(timeoutId);
       }
     };
-  }, []);
+  }, [isMounted]);
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -90,6 +105,10 @@ export function TerminalBoot({ onBootComplete }: { onBootComplete: () => void })
       }
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="bg-black text-green-500 font-mono p-4 min-h-screen">

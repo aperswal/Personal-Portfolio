@@ -51,11 +51,14 @@ const WindowComponent = ({
   const [startPosition, setStartPosition] = useState<Position>({ x: 0, y: 0 });
   const [showDock, setShowDock] = useState(true);
   const windowRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number>();
-  const dockTimeoutRef = useRef<NodeJS.Timeout>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const dockTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Get dock icon position for minimize animation
-  const [minimizeTarget, setMinimizeTarget] = useState({ x: 0, y: window.innerHeight });
+  const [minimizeTarget, setMinimizeTarget] = useState(() => ({
+    x: 0,
+    y: typeof window !== 'undefined' ? window.innerHeight : 0
+  }));
 
   const [isMounted, setIsMounted] = useState(false);
 
