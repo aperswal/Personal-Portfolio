@@ -201,12 +201,10 @@ next-env.d.ts`}
 ];
 
 interface FinderProps {
-  isOpen: boolean;
-  onClose: () => void;
   onOpenFile: (id: string) => void;
 }
 
-export function Finder({ isOpen, onClose, onOpenFile }: FinderProps) {
+export function Finder({ onOpenFile }: FinderProps) {
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 

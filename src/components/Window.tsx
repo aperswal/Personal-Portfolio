@@ -13,7 +13,6 @@ interface Size {
 
 interface WindowProps {
   title: string;
-  isOpen: boolean;
   onClose: () => void;
   onMinimize: () => void;
   onMaximize: () => void;
@@ -27,7 +26,6 @@ interface WindowProps {
 
 export function Window({
   title,
-  isOpen,
   onClose,
   onMinimize,
   onMaximize,
@@ -43,12 +41,10 @@ export function Window({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<string>('');
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [startSize, setStartSize] = useState<Size>({ width: 0, height: 0 });
   const [startPosition, setStartPosition] = useState<Position>({ x: 0, y: 0 });
   const [showDock, setShowDock] = useState(true);
   const windowRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number>();
   const dockTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Get dock icon position for minimize animation
@@ -185,10 +181,6 @@ export function Window({
     if (!rect) return;
 
     setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
   };
 
   const startResize = (direction: string) => (e: React.MouseEvent) => {
