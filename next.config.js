@@ -7,8 +7,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    missingSuspenseWithCSRError: false,
+  images: {
+    unoptimized: true,
   },
   async headers() {
     return [
