@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Info, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface Artwork {
   id: string;
@@ -195,9 +196,11 @@ export function Gallery() {
               showInfo ? "mr-96" : "mr-0"
             )}
           >
-            <img
+            <Image
               src={selectedArtwork.image}
               alt={selectedArtwork.title}
+              width={800}
+              height={600}
               className="absolute inset-0 w-full h-full object-contain"
             />
             
@@ -267,9 +270,11 @@ export function Gallery() {
                 onClick={() => setSelectedArtwork(artwork)}
                 className="group relative aspect-square overflow-hidden rounded-lg bg-gray-800"
               >
-                <img
+                <Image
                   src={artwork.image}
                   alt={artwork.title}
+                  width={800}
+                  height={600}
                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -104,87 +104,78 @@ export function Window({
   }, [isMaximized]);
 
   useEffect(() => {
+    if (!isDragging || !startPosition) return;
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isMaximized) {
-        if (isDragging) {
-          if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-          }
-
-          animationFrameRef.current = requestAnimationFrame(() => {
-            const newX = e.clientX - dragOffset.x;
-            const newY = Math.max(0, e.clientY - dragOffset.y); // Prevent dragging behind toolbar
-            const maxX = window.innerWidth - (windowRef.current?.offsetWidth || 0);
-            const maxY = window.innerHeight - (windowRef.current?.offsetHeight || 0);
-            setPosition({
-              x: Math.max(0, Math.min(newX, maxX)),
-              y: Math.max(0, Math.min(newY, maxY))
-            });
-          });
-        } else if (isResizing) {
-          e.preventDefault();
-          if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-          }
-
-          animationFrameRef.current = requestAnimationFrame(() => {
-            const dx = e.clientX - startPosition.x;
-            const dy = e.clientY - startPosition.y;
-            const minWidth = 400;
-            const minHeight = 300;
-            const maxWidth = window.innerWidth - position.x;
-            const maxHeight = window.innerHeight - position.y;
-
-            let newWidth = startSize.width;
-            let newHeight = startSize.height;
-            let newX = position.x;
-            let newY = position.y;
-
-            if (resizeDirection.includes('e')) {
-              newWidth = Math.max(minWidth, Math.min(startSize.width + dx, maxWidth));
-            }
-            if (resizeDirection.includes('s')) {
-              newHeight = Math.max(minHeight, Math.min(startSize.height + dy, maxHeight));
-            }
-            if (resizeDirection.includes('w')) {
-              const deltaWidth = Math.max(minWidth, Math.min(startSize.width - dx, startPosition.x + startSize.width));
-              newX = position.x + (startSize.width - deltaWidth);
-              newWidth = deltaWidth;
-            }
-            if (resizeDirection.includes('n')) {
-              const deltaHeight = Math.max(minHeight, Math.min(startSize.height - dy, startPosition.y + startSize.height));
-              newY = position.y + (startSize.height - deltaHeight);
-              newHeight = deltaHeight;
-            }
-
-            setSize({ width: newWidth, height: newHeight });
-            setPosition({ x: newX, y: newY });
-          });
-        }
-      }
+      const deltaX = e.clientX - startPosition.x;
+      const deltaY = e.clientY - startPosition.y;
+      setPosition({
+        x: position.x + deltaX,
+        y: position.y + deltaY
+      });
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      setIsResizing(false);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      setStartPosition(null);
     };
 
-    if (isDragging || isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, isResizing, dragOffset, isMaximized]);
+  }, [isDragging, startPosition, position.x, position.y]);
+
+  // Similar fix for resize effect
+  useEffect(() => {
+    if (!isResizing || !startPosition || !startSize || !resizeDirection) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - startPosition.x;
+      const deltaY = e.clientY - startPosition.y;
+
+      const newSize = {
+        width: startSize.width,
+        height: startSize.height
+      };
+
+      // Update size based on resize direction
+      if (resizeDirection.includes('e')) {
+        newSize.width += deltaX;
+      }
+      if (resizeDirection.includes('s')) {
+        newSize.height += deltaY;
+      }
+      if (resizeDirection.includes('w')) {
+        newSize.width -= deltaX;
+        setPosition(prev => ({ ...prev, x: position.x + deltaX }));
+      }
+      if (resizeDirection.includes('n')) {
+        newSize.height -= deltaY;
+        setPosition(prev => ({ ...prev, y: position.y + deltaY }));
+      }
+
+      setSize(newSize);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      setStartPosition(null);
+      setStartSize(null);
+      setResizeDirection(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, startPosition, startSize, resizeDirection, position.x, position.y]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMaximized) return;

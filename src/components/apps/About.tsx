@@ -18,7 +18,7 @@ export function About() {
             />
           </div>
           <p className="text-lg text-gray-400 italic">
-            "Dressing is just decoration for food."
+            &ldquo;Dressing is just decoration for food.&rdquo;
           </p>
         </div>
 
