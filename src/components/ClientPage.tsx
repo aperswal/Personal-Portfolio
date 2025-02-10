@@ -7,23 +7,30 @@ console.log('Loading ClientPage module');
 
 // Dynamically import components with no SSR and proper error boundaries
 const NoSSRTerminalBoot = dynamic(
-  () => import('./TerminalBoot').catch(err => {
-    console.error('Error loading TerminalBoot:', err);
-    return () => (
-      <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
-        <div>
-          <div className="mb-2">Failed to load terminal component</div>
-          <div className="text-sm text-gray-500 mb-4">{err.message}</div>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }),
+  () => {
+    console.log('Loading TerminalBoot component');
+    return import('./TerminalBoot')
+      .then(mod => {
+        console.log('TerminalBoot loaded successfully');
+        return mod;
+      })
+      .catch(err => {
+        console.error('Error loading TerminalBoot:', err);
+        return () => (
+          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
+            <div>
+              <div className="mb-2">Error loading terminal component</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        );
+      });
+  },
   {
     ssr: false,
     loading: () => (
@@ -35,29 +42,36 @@ const NoSSRTerminalBoot = dynamic(
 );
 
 const NoSSRDesktopInterface = dynamic(
-  () => import('./DesktopInterface').catch(err => {
-    console.error('Error loading DesktopInterface:', err);
-    return () => (
-      <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
-        <div>
-          <div className="mb-2">Failed to load desktop component</div>
-          <div className="text-sm text-gray-500 mb-4">{err.message}</div>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }),
+  () => {
+    console.log('Loading DesktopInterface component');
+    return import('./DesktopInterface')
+      .then(mod => {
+        console.log('DesktopInterface loaded successfully');
+        return mod;
+      })
+      .catch(err => {
+        console.error('Error loading DesktopInterface:', err);
+        return () => (
+          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
+            <div>
+              <div className="mb-2">Error loading desktop component</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        );
+      });
+  },
   {
     ssr: false,
     loading: () => (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
-          Loading desktop environment...
+          Loading desktop...
         </div>
       </div>
     ),
