@@ -14,7 +14,7 @@ interface Size {
   height: number;
 }
 
-interface WindowProps {
+export interface WindowProps {
   title: string;
   isOpen: boolean;
   onClose: () => void;
@@ -28,7 +28,7 @@ interface WindowProps {
   onMaximizedChange?: (isMaximized: boolean) => void;
 }
 
-const WindowComponent = ({
+const WindowComponent: React.FC<WindowProps> = ({
   title,
   isOpen,
   onClose,
@@ -40,7 +40,7 @@ const WindowComponent = ({
   isMinimized,
   dockBounds,
   onMaximizedChange
-}: WindowProps) => {
+}) => {
   const [position, setPosition] = useState<Position>(defaultPosition);
   const [size, setSize] = useState<Size>({ width: 800, height: 600 });
   const [isDragging, setIsDragging] = useState(false);

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, RefObject, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Window } from './Window';
+import type { WindowProps } from './Window';
 import { MobileWarning } from './MobileWarning';
 import { WallpaperPreloader } from './WallpaperPreloader';
 import { Finder } from './Finder';
@@ -26,6 +27,9 @@ import { Gallery } from './apps/media/Gallery';
 import { Movies } from './apps/media/Movies';
 import { Music } from './apps/media/Music';
 import { Phone } from './apps/Phone';
+
+// Update type for dock icon refs
+type DockIconRefs = Map<string, HTMLElement>;
 
 interface DesktopIcon {
   id: string;
@@ -52,7 +56,7 @@ const dockItemClass = `
   group
 `;
 
-const DesktopInterfaceComponent = () => {
+const DesktopInterface = () => {
   const [activeWindows, setActiveWindows] = useState<Set<string>>(new Set());
   const [maximizedWindow, setMaximizedWindow] = useState<string | null>(null);
   const [minimizedWindows, setMinimizedWindows] = useState<Set<string>>(new Set());
@@ -60,9 +64,10 @@ const DesktopInterfaceComponent = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentWallpaper, setCurrentWallpaper] = useState(0);
   const [nextWallpaper, setNextWallpaper] = useState(1);
-  const [dockIconRefs] = useState<Map<string, HTMLElement>>(new Map());
+  // Replace state with ref
+  const dockIconRefs = useRef<DockIconRefs>(new Map());
   const [showDock, setShowDock] = useState(true);
-  const dockTimeoutRef = useRef<NodeJS.Timeout>();
+  const dockTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [isWallpaperTransitioning, setIsWallpaperTransitioning] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -97,8 +102,9 @@ const DesktopInterfaceComponent = () => {
     setMaximizedWindow(prev => prev === id ? null : id);
   };
 
+  // Update getDockIconPosition to use ref
   const getDockIconPosition = (id: string) => {
-    const element = dockIconRefs.get(id);
+    const element = dockIconRefs.current.get(id);
     return element?.getBoundingClientRect() || null;
   };
 
@@ -308,6 +314,29 @@ const DesktopInterfaceComponent = () => {
     setIsMounted(true);
   }, []);
 
+  const renderWindow = (id: string) => {
+    const icon = desktopIcons.find(i => i.id === id);
+    if (!icon) return null;
+    
+    const windowProps: WindowProps = {
+      title: icon.title,
+      isOpen: true,
+      onClose: () => handleWindowClose(id),
+      onMinimize: () => handleWindowMinimize(id),
+      onMaximize: () => handleWindowMaximize(id),
+      isMaximized: maximizedWindow === id,
+      isMinimized: minimizedWindows.has(id),
+      dockBounds: getDockIconPosition(id),
+      defaultPosition: { 
+        x: 50 + (activeWindows.size * 20), 
+        y: 50 + (activeWindows.size * 20) 
+      },
+      children: icon.content
+    };
+    
+    return <Window key={id} {...windowProps} />;
+  };
+
   if (!isMounted) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
@@ -401,30 +430,7 @@ const DesktopInterfaceComponent = () => {
         </div>
 
         {/* Windows */}
-        {Array.from(activeWindows).map(id => {
-          const icon = desktopIcons.find(icon => icon.id === id);
-          if (!icon) return null;
-
-          return (
-            <Window
-              key={id}
-              title={icon.title}
-              isOpen={true}
-              onClose={() => handleWindowClose(id)}
-              onMinimize={() => handleWindowMinimize(id)}
-              onMaximize={() => handleWindowMaximize(id)}
-              isMaximized={maximizedWindow === id}
-              isMinimized={minimizedWindows.has(id)}
-              dockBounds={getDockIconPosition(id)}
-              defaultPosition={{ 
-                x: 50 + (Array.from(activeWindows).indexOf(id) * 30), 
-                y: 50 + (Array.from(activeWindows).indexOf(id) * 30) 
-              }}
-            >
-              {icon.content}
-            </Window>
-          );
-        })}
+        {Array.from(activeWindows).map(renderWindow)}
 
         {/* Enhanced Dock */}
         <div 
@@ -440,7 +446,13 @@ const DesktopInterfaceComponent = () => {
               ) : (
                 <div key={icon.id} className="group/dock relative py-2 px-1">
                   <button 
-                    ref={(el) => el && dockIconRefs.set(icon.id, el)}
+                    ref={(el) => {
+                      if (el) {
+                        dockIconRefs.current.set(icon.id, el);
+                      } else {
+                        dockIconRefs.current.delete(icon.id);
+                      }
+                    }}
                     className={dockItemClass}
                     onClick={() => {
                       if (minimizedWindows.has(icon.id)) {
@@ -488,4 +500,4 @@ const DesktopInterfaceComponent = () => {
   );
 };
 
-export const DesktopInterface = withNoSSR(DesktopInterfaceComponent); 
+export default DesktopInterface; 
