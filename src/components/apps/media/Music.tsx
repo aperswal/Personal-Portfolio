@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Play, 
   Pause, 
@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { withNoSSR } from '@/lib/utils/dynamic';
 
 interface Song {
   title: string;
@@ -165,22 +166,10 @@ const playlists = [
   }
 ];
 
-export function Music() {
+const MusicComponent = () => {
   const [selectedPlaylist, setSelectedPlaylist] = useState(playlists[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [audioRef] = useState<React.RefObject<HTMLAudioElement>>(null);
-
-  useEffect(() => {
-    const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
-      }
-    };
-    
-    audioRef.current?.addEventListener('timeupdate', handleTimeUpdate);
-    return () => audioRef.current?.removeEventListener('timeupdate', handleTimeUpdate);
-  }, []);
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 to-black text-white">
@@ -346,4 +335,6 @@ export function Music() {
       </div>
     </div>
   );
-} 
+};
+
+export const Music = withNoSSR(MusicComponent); 

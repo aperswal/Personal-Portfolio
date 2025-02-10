@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Window } from './Window';
 
 interface FileItem {
   id: string;
@@ -201,10 +202,12 @@ next-env.d.ts`}
 ];
 
 interface FinderProps {
+  isOpen: boolean;
+  onClose: () => void;
   onOpenFile: (id: string) => void;
 }
 
-export function Finder({ onOpenFile }: FinderProps) {
+export function Finder({ isOpen, onClose, onOpenFile }: FinderProps) {
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 

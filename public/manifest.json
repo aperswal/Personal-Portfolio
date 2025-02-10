@@ -1,19 +1,19 @@
 {
-  "name": "Your Portfolio OS",
-  "short_name": "Portfolio OS",
-  "description": "A macOS-inspired portfolio website",
-  "start_url": "/",
+  "name": "Aditya Perswal Portfolio",
+  "short_name": "AP Portfolio",
+  "description": "Full-stack developer with a passion for building innovative solutions",
+  "start_url": "https://adityaperswal.com",
   "display": "standalone",
-  "background_color": "#1e1e1e",
-  "theme_color": "#1e1e1e",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

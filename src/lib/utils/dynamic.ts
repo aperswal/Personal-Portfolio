@@ -1,7 +1,6 @@
 import dynamic from 'next/dynamic'
-import { ComponentType } from 'react'
 
-export const withNoSSR = <T extends object>(Component: ComponentType<T>) =>
+export const withNoSSR = (Component: any) =>
   dynamic(() => Promise.resolve(Component), {
     ssr: false,
   }) 

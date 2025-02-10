@@ -18,7 +18,7 @@ export function About() {
             />
           </div>
           <p className="text-lg text-gray-400 italic">
-            &ldquo;Dressing is just decoration for food.&rdquo;
+            "Dressing is just decoration for food."
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function About() {
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-green-400 mb-2">Better Code</h3>
                 <p className="text-gray-300 leading-relaxed group-hover:text-green-400 transition-colors">
-                  I want to write code that makes the next developer smile. Code that&apos;s 
+                  I want to write code that makes the next developer smile. Code that's 
                   powerful yet simple to understand and maintain.
                 </p>
               </div>
@@ -99,7 +99,7 @@ export function About() {
         {/* Quote Section */}
         <div className="text-center py-8">
           <blockquote className="text-lg italic text-gray-400">
-            &ldquo;Simplicity is the ultimate sophistication.&rdquo;
+            "Simplicity is the ultimate sophistication."
           </blockquote>
           <cite className="text-sm text-gray-500 mt-2 block">
             - Leonardo da Vinci

@@ -1,4 +1,5 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
+import { cn } from '@/lib/utils';
 
 interface BootMessage {
   text: string;
@@ -54,12 +55,6 @@ export function TerminalBoot({ onBootComplete }: { onBootComplete: () => void })
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (isBooted) {
-      onBootComplete();
-    }
-  }, [isBooted, onBootComplete]);
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {

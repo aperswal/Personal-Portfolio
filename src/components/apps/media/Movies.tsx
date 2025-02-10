@@ -22,18 +22,28 @@ const mediaList: Movie[] = [
     rating: 6.7,
     duration: "2h 42m",
     genre: ["Drama", "Action", "Romance"],
-    poster: "/posters/om-shanti-om.jpg",
+    poster: "https://image.tmdb.org/t/p/original/2mnqkI871E0thcIwsB6K6Bhemb2.jpg",
     description: "A struggling actor's life changes dramatically after he witnesses a murder and is reborn as a wealthy family's son to seek revenge.",
     type: "movie"
   },
   {
     title: "Mission: Impossible Series",
-    year: "1996-2023",
-    rating: 7.8,
-    duration: "Series of 7 films",
-    genre: ["Action", "Adventure", "Thriller"],
-    poster: "/posters/mission-impossible.jpg",
-    description: "An IMF agent takes on various high-stakes missions to protect the world from dangerous threats.",
+    year: "1996-2024",
+    rating: 7.5,
+    duration: "Series",
+    genre: ["Action", "Thriller", "Spy"],
+    poster: "https://image.tmdb.org/t/p/w500/NNxYkU70HPurnNCSiCjYAmacwm.jpg",
+    description: "An IMF agent takes on various high-risk missions to protect the world from dangerous threats.",
+    type: "movie"
+  },
+  {
+    title: "The Dark Knight Trilogy",
+    year: "2005-2012",
+    rating: 9.0,
+    duration: "Series",
+    genre: ["Action", "Drama", "Crime"],
+    poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+    description: "Bruce Wayne's journey as Batman, from his origins to his final sacrifice for Gotham City.",
     type: "movie"
   },
   {
@@ -42,18 +52,8 @@ const mediaList: Movie[] = [
     rating: 7.9,
     duration: "Series of 5 films",
     genre: ["Action", "Mystery", "Thriller"],
-    poster: "/posters/bourne.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/2smjeyT38DOZYMhdNHreVGJWRMF.jpg",
     description: "A CIA assassin with amnesia tries to uncover his true identity while evading government agents.",
-    type: "movie"
-  },
-  {
-    title: "The Dark Knight Trilogy",
-    year: "2005-2012",
-    rating: 9.0,
-    duration: "Series of 3 films",
-    genre: ["Action", "Crime", "Drama"],
-    poster: "/posters/dark-knight.jpg",
-    description: "Bruce Wayne becomes Batman and fights to protect Gotham City from various threats.",
     type: "movie"
   },
   {
@@ -62,7 +62,7 @@ const mediaList: Movie[] = [
     rating: 7.7,
     duration: "Series of 25 films",
     genre: ["Action", "Adventure", "Thriller"],
-    poster: "/posters/007.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/iUgygt3fscRoKWCV1d0C7FbM9TP.jpg",
     description: "The adventures of British Secret Service agent James Bond, code-named 007.",
     type: "movie"
   },
@@ -72,7 +72,7 @@ const mediaList: Movie[] = [
     rating: 7.5,
     duration: "Multiple films",
     genre: ["Crime", "Drama", "Mystery"],
-    poster: "/posters/poirot.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/kVr5zIAFSPRQ57Y1zE7KzmhzdMQ.jpg",
     description: "Agatha Christie's famous detective solves complex murder mysteries with his 'little grey cells'.",
     type: "movie"
   },
@@ -82,7 +82,7 @@ const mediaList: Movie[] = [
     rating: 7.6,
     duration: "2 films",
     genre: ["Action", "Adventure", "Mystery"],
-    poster: "/posters/sherlock-holmes.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/momkKuWburNTqKBF6ez7rvhYVhE.jpg",
     description: "Detective Sherlock Holmes and Dr. Watson join forces to solve crimes in Victorian London.",
     type: "movie"
   },
@@ -92,7 +92,7 @@ const mediaList: Movie[] = [
     rating: 7.7,
     duration: "Series of 3 films",
     genre: ["Comedy"],
-    poster: "/posters/hangover.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/uluhlXubGu1VxU63X9VHCLWDAYP.jpg",
     description: "A group of friends experience wild adventures and memory loss during bachelor parties.",
     type: "movie"
   },
@@ -101,18 +101,18 @@ const mediaList: Movie[] = [
     year: "2007",
     rating: 7.3,
     duration: "2h 39m",
-    genre: ["Comedy", "Horror", "Mystery"],
-    poster: "/posters/bhool-bhulaiyaa.jpg",
-    description: "A psychiatrist deals with a mysterious case in a haunted palace.",
+    genre: ["Horror", "Comedy", "Mystery"],
+    poster: "https://image.tmdb.org/t/p/original/soRW3p4GlPphHiFkwbqYGrodQ5S.jpg",
+    description: "An NRI and his wife decide to stay in his ancestral home, paying no heed to the warnings about ghosts. Soon, inexplicable occurrences cause him to call a psychiatrist to help solve the mystery.",
     type: "movie"
   },
   {
-    title: "Stree 1 & 2",
+    title: "Stree",
     year: "2018-2024",
     rating: 7.6,
     duration: "2 films",
     genre: ["Comedy", "Horror"],
-    poster: "/posters/stree.jpg",
+    poster: "https://image.tmdb.org/t/p/original/vkbSB8U9uPN18ssXCf8taetBae.jpg",
     description: "A town is haunted by a mysterious female spirit who targets men.",
     type: "movie"
   },
@@ -122,23 +122,21 @@ const mediaList: Movie[] = [
     title: "Breaking Bad",
     year: "2008-2013",
     rating: 9.5,
-    duration: "5 seasons",
+    duration: "5 Seasons",
     genre: ["Crime", "Drama", "Thriller"],
-    poster: "/posters/breaking-bad.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
     description: "A high school chemistry teacher turned methamphetamine manufacturer partners with a former student to secure his family's financial future.",
-    type: "series",
-    seasons: 5
+    type: "series"
   },
   {
     title: "Game of Thrones",
     year: "2011-2019",
     rating: 9.3,
-    duration: "8 seasons",
-    genre: ["Action", "Adventure", "Drama"],
-    poster: "/posters/got.jpg",
+    duration: "8 Seasons",
+    genre: ["Fantasy", "Drama", "Action"],
+    poster: "https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg",
     description: "Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns.",
-    type: "series",
-    seasons: 8
+    type: "series"
   },
   {
     title: "Rick and Morty",
@@ -146,7 +144,7 @@ const mediaList: Movie[] = [
     rating: 9.1,
     duration: "7 seasons",
     genre: ["Animation", "Adventure", "Comedy"],
-    poster: "/posters/rick-morty.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/8kOWDBK6XlPUzckuHDo3wwVRFwt.jpg",
     description: "An alcoholic scientist and his grandson go on bizarre adventures across the multiverse.",
     type: "series",
     seasons: 7
@@ -157,7 +155,7 @@ const mediaList: Movie[] = [
     rating: 8.5,
     duration: "9 seasons",
     genre: ["Comedy", "Drama"],
-    poster: "/posters/suits.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/vQiryp6LioFxQThywxbC6TuoDjy.jpg",
     description: "A talented college dropout starts working as a law associate despite never attending law school.",
     type: "series",
     seasons: 9
@@ -168,7 +166,7 @@ const mediaList: Movie[] = [
     rating: 8.3,
     duration: "9 seasons",
     genre: ["Comedy", "Romance"],
-    poster: "/posters/himym.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/b34jPzmB0wZy7EjUZoleXOl2RRI.jpg",
     description: "Ted Mosby recounts to his kids the events that led him to meet their mother.",
     type: "series",
     seasons: 9
@@ -179,7 +177,7 @@ const mediaList: Movie[] = [
     rating: 8.9,
     duration: "10 seasons",
     genre: ["Comedy", "Romance"],
-    poster: "/posters/friends.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/f496cm9enuEsZkSPzCwnTESEK5s.jpg",
     description: "Follows the lives of six friends living in New York City.",
     type: "series",
     seasons: 10
@@ -190,7 +188,7 @@ const mediaList: Movie[] = [
     rating: 8.4,
     duration: "8 seasons",
     genre: ["Comedy", "Crime"],
-    poster: "/posters/b99.jpg",
+    poster: "https://image.tmdb.org/t/p/original/A3SymGlOHefSKbz1bCOz56moupS.jpg",
     description: "The adventures of the 99th precinct of the NYPD.",
     type: "series",
     seasons: 8
@@ -201,7 +199,7 @@ const mediaList: Movie[] = [
     rating: 7.7,
     duration: "7 seasons",
     genre: ["Comedy", "Romance"],
-    poster: "/posters/new-girl.jpg",
+    poster: "https://image.tmdb.org/t/p/original/lktCmXmoeR3ikhqE9SLN2IumwUx.jpg",
     description: "After a bad break-up, Jess moves in with three single guys.",
     type: "series",
     seasons: 7
@@ -212,7 +210,7 @@ const mediaList: Movie[] = [
     rating: 8.1,
     duration: "6 seasons",
     genre: ["Crime", "Drama", "Fantasy"],
-    poster: "/posters/lucifer.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/4EYPN5mVIhKLfxGruy7Dy41dTVn.jpg",
     description: "The Devil relocates to Los Angeles and opens a nightclub while helping the LAPD solve crimes.",
     type: "series",
     seasons: 6
@@ -223,7 +221,7 @@ const mediaList: Movie[] = [
     rating: 7.9,
     duration: "1 season",
     genre: ["Drama", "Mystery", "Sci-Fi"],
-    poster: "/posters/3body.jpg",
+    poster: "https://image.tmdb.org/t/p/original/sphnjjiYb50SbWMToW7fyGigH1n.jpg",
     description: "A young woman's fateful decision in 1960s China reverberates across space and time into the present day.",
     type: "series",
     seasons: 1
@@ -234,7 +232,7 @@ const mediaList: Movie[] = [
     rating: 8.3,
     duration: "4 seasons",
     genre: ["Animation", "Action", "Adventure"],
-    poster: "/posters/castlevania.jpg",
+    poster: "https://image.tmdb.org/t/p/original/noJuAV1S2YQdD3gsy0iLasOAupk.jpg",
     description: "A vampire hunter fights to save a city from an army of otherworldly creatures.",
     type: "series",
     seasons: 4
@@ -245,7 +243,7 @@ const mediaList: Movie[] = [
     rating: 8.3,
     duration: "2 seasons",
     genre: ["Animation", "Action", "Adventure"],
-    poster: "/posters/vox-machina.jpg",
+    poster: "https://image.tmdb.org/t/p/original/b5A0qkGrZJTyVv3gT6b8clFEz9R.jpg",
     description: "A group of misfit adventurers embark on quests in the fantasy world of Exandria.",
     type: "series",
     seasons: 2

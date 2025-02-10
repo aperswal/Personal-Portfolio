@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { withNoSSR } from '@/lib/utils/dynamic';
 
-export function Terminal() {
+const TerminalComponent = () => {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState<string[]>(['Welcome to MyOS Terminal', 'Type "help" for available commands']);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,4 +55,6 @@ export function Terminal() {
       </form>
     </div>
   );
-} 
+};
+
+export const Terminal = withNoSSR(TerminalComponent); 
