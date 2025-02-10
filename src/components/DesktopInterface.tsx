@@ -339,7 +339,7 @@ const DesktopInterface = () => {
 
   if (!isMounted) {
     return (
-      <div className="bg-black min-h-screen flex items-center justify-center">
+      <div className="fixed inset-0 bg-black min-h-screen flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
           Loading desktop...
         </div>
@@ -352,9 +352,9 @@ const DesktopInterface = () => {
   }
 
   return (
-    <>
+    <div className="fixed inset-0 overflow-hidden">
       <WallpaperPreloader wallpapers={wallpapers} />
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 min-h-screen text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 text-white">
         <MenuBar 
           onMinimize={handleWindowMinimize}
           onMaximize={handleWindowMaximize}
@@ -365,7 +365,7 @@ const DesktopInterface = () => {
         {/* Current Wallpaper */}
         <div 
           className={cn(
-            "absolute inset-0 transition-opacity duration-1000",
+            "absolute inset-0 z-0 transition-opacity duration-1000",
             isWallpaperTransitioning ? "opacity-0" : "opacity-80"
           )}
           style={{ 
@@ -380,7 +380,7 @@ const DesktopInterface = () => {
         {/* Next Wallpaper - Preloaded */}
         <div 
           className={cn(
-            "absolute inset-0 transition-opacity duration-1000",
+            "absolute inset-0 z-0 transition-opacity duration-1000",
             isWallpaperTransitioning ? "opacity-80" : "opacity-0"
           )}
           style={{ 
@@ -394,16 +394,16 @@ const DesktopInterface = () => {
         
         {/* Lighter overlay gradient for better wallpaper visibility */}
         <div 
-          className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/20 z-[1]"
+          className="absolute inset-0 z-[1] bg-gradient-to-b from-black/10 to-black/20"
         />
 
         {/* Desktop Icons - Updated for right alignment and bigger size */}
-        <div className="fixed right-12 top-12 z-10">
+        <div className="fixed right-12 top-12 z-[2]">
           <div 
             className="grid grid-cols-3 gap-8 justify-items-end" 
             style={{ 
               gridTemplateRows: 'repeat(auto-fill, 120px)',
-              direction: 'rtl'  // This helps with right alignment
+              direction: 'rtl'
             }}
           >
             {desktopIcons.map((icon, index) => (
@@ -429,14 +429,16 @@ const DesktopInterface = () => {
           </div>
         </div>
 
-        {/* Windows */}
-        {Array.from(activeWindows).map(renderWindow)}
+        {/* Windows Layer */}
+        <div className="relative z-[3]">
+          {Array.from(activeWindows).map(renderWindow)}
+        </div>
 
         {/* Enhanced Dock */}
         <div 
           className={cn(
-            "fixed bottom-4 left-1/2 -translate-x-1/2 transition-all duration-300",
-            showDock ? "z-30 translate-y-0 opacity-100" : "z-0 translate-y-20 opacity-0"
+            "fixed bottom-4 left-1/2 -translate-x-1/2 z-[4] transition-all duration-300",
+            showDock ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
           )}
         >
           <div className="flex items-end gap-4 px-8 py-3 bg-gray-800/40 backdrop-blur-md rounded-2xl border border-white/10">
@@ -496,7 +498,7 @@ const DesktopInterface = () => {
           <div className="dock-reflection" />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
