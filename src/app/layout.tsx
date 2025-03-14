@@ -14,12 +14,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="overflow-hidden" suppressHydrationWarning>
-        <div className="fixed inset-0 bg-black">
-          {children}
-        </div>
+      <body className="bg-black min-h-screen" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );

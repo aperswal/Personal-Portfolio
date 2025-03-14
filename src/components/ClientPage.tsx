@@ -1,80 +1,44 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-console.log('Loading ClientPage module');
-
-// Dynamically import components with no SSR and proper error boundaries
+// Dynamically import components with no SSR
 const NoSSRTerminalBoot = dynamic(
-  () => {
-    console.log('Loading TerminalBoot component');
-    return import('./TerminalBoot')
-      .then(mod => {
-        console.log('TerminalBoot loaded successfully');
-        return mod;
-      })
-      .catch(err => {
-        console.error('Error loading TerminalBoot:', err);
-        return () => (
-          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
-            <div>
-              <div className="mb-2">Error loading terminal component</div>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        );
-      });
-  },
+  () => import('@/components/TerminalBoot').then(mod => {
+    console.log('TerminalBoot module loaded:', mod);
+    return mod.default;
+  }),
   {
     ssr: false,
-    loading: () => (
-      <div className="fixed inset-0 bg-black text-green-500 font-mono flex items-center justify-center">
-        <div className="animate-pulse">Loading terminal...</div>
-      </div>
-    ),
+    loading: () => {
+      console.log('Loading TerminalBoot component...');
+      return (
+        <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+          <div className="animate-pulse">Loading terminal...</div>
+        </div>
+      );
+    },
   }
 );
 
 const NoSSRDesktopInterface = dynamic(
-  () => {
-    console.log('Loading DesktopInterface component');
-    return import('./DesktopInterface')
-      .then(mod => {
-        console.log('DesktopInterface loaded successfully');
-        return mod;
-      })
-      .catch(err => {
-        console.error('Error loading DesktopInterface:', err);
-        return () => (
-          <div className="fixed inset-0 bg-black text-red-500 font-mono flex items-center justify-center">
-            <div>
-              <div className="mb-2">Error loading desktop component</div>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="px-4 py-2 border border-red-500 hover:bg-red-500 hover:text-black transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        );
-      });
-  },
+  () => import('@/components/DesktopInterface').then(mod => {
+    console.log('DesktopInterface module loaded:', mod);
+    return mod.default;
+  }),
   {
     ssr: false,
-    loading: () => (
-      <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <div className="text-green-500 font-mono animate-pulse">
-          Loading desktop...
+    loading: () => {
+      console.log('Loading DesktopInterface component...');
+      return (
+        <div className="bg-black min-h-screen flex items-center justify-center">
+          <div className="text-green-500 font-mono animate-pulse">
+            Loading desktop...
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
   }
 );
 
@@ -90,7 +54,6 @@ export default function ClientPage() {
 
     const initializeClient = async () => {
       try {
-        console.log('Initializing client...');
         setIsLoading(true);
         // Check if we have a stored session
         if (typeof window !== 'undefined') {
@@ -100,7 +63,6 @@ export default function ClientPage() {
             setBootComplete(hasCompleted);
             setIsMounted(true);
             setIsLoading(false);
-            console.log('Client initialized successfully');
           }
         }
       } catch (error) {
@@ -172,17 +134,17 @@ export default function ClientPage() {
   if (isLoading || !isMounted) {
     console.log('ClientPage loading or not mounted');
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center">
+      <main className="bg-black min-h-screen flex items-center justify-center">
         <div className="text-green-500 font-mono animate-pulse">
           Initializing system...
         </div>
-      </div>
+      </main>
     );
   }
 
   console.log('Rendering main content, bootComplete:', bootComplete);
   return (
-    <div className="fixed inset-0 bg-black">
+    <main className="relative">
       {!bootComplete ? (
         <NoSSRTerminalBoot onBootComplete={handleBootComplete} />
       ) : (
@@ -196,6 +158,6 @@ export default function ClientPage() {
           </button>
         </>
       )}
-    </div>
+    </main>
   );
 } 
