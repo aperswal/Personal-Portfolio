@@ -3,68 +3,56 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-// Dynamically import components with no SSR
-const NoSSRTerminalBoot = dynamic(
-  () => import('@/components/TerminalBoot').then(mod => {
-    console.log('TerminalBoot module loaded:', mod);
-    return mod.default;
-  }),
-  {
-    ssr: false,
-    loading: () => {
-      console.log('Loading TerminalBoot component...');
-      return (
-        <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
-          <div className="animate-pulse">Loading terminal...</div>
-        </div>
-      );
-    },
-  }
-);
+// Simplify dynamic imports to reduce potential failures
+const NoSSRTerminalBoot = dynamic(() => import('@/components/TerminalBoot'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center" 
+         style={{backgroundColor: 'black', color: 'rgb(34, 197, 94)', fontFamily: 'monospace'}}>
+      <div className="animate-pulse" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
+        Loading terminal...
+      </div>
+    </div>
+  ),
+});
 
-const NoSSRDesktopInterface = dynamic(
-  () => import('@/components/DesktopInterface').then(mod => {
-    console.log('DesktopInterface module loaded:', mod);
-    return mod.default;
-  }),
-  {
-    ssr: false,
-    loading: () => {
-      console.log('Loading DesktopInterface component...');
-      return (
-        <div className="bg-black min-h-screen flex items-center justify-center">
-          <div className="text-green-500 font-mono animate-pulse">
-            Loading desktop...
-          </div>
-        </div>
-      );
-    },
-  }
-);
+const NoSSRDesktopInterface = dynamic(() => import('@/components/DesktopInterface'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-black min-h-screen flex items-center justify-center"
+         style={{backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div className="text-green-500 font-mono animate-pulse"
+           style={{color: 'rgb(34, 197, 94)', fontFamily: 'monospace', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
+        Loading desktop...
+      </div>
+    </div>
+  ),
+});
 
 export default function ClientPage() {
-  console.log('Rendering ClientPage');
   const [bootComplete, setBootComplete] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
+  const [forceRender, setForceRender] = useState(0);
 
+  // First useEffect just to handle component mount and initialization
   useEffect(() => {
-    console.log('ClientPage mounted');
+    console.log('ClientPage mounted, initializing...');
     let mounted = true;
 
-    // Add a failsafe timeout to ensure we don't get stuck loading
+    // Add a failsafe timeout to force the app to continue
     const timeoutId = setTimeout(() => {
-      if (mounted && isLoading) {
-        console.log('Initialization timeout triggered - forcing completion');
+      if (mounted) {
+        console.log('Initialization timeout triggered - force rendering the terminal');
         setIsLoading(false);
         setIsMounted(true);
+        setForceRender(prev => prev + 1); // Force a re-render
       }
-    }, 5000); // 5 seconds timeout
+    }, 3000); // Reduced to 3 seconds for faster user experience
 
     const initializeClient = async () => {
       try {
-        setIsLoading(true);
         // Check if we have a stored session
         if (typeof window !== 'undefined') {
           try {
@@ -77,15 +65,12 @@ export default function ClientPage() {
             }
           } catch (storageError) {
             console.error('Session storage error:', storageError);
-            // Continue even if sessionStorage fails
             if (mounted) {
               setIsMounted(true);
               setIsLoading(false);
             }
           }
         } else {
-          // If window is undefined, we're still in SSR but the effect is running
-          // This shouldn't happen with 'use client', but add a failsafe
           console.log('Window is undefined in effect, forcing client init');
           if (mounted) {
             setIsMounted(true);
@@ -96,8 +81,8 @@ export default function ClientPage() {
         console.error('Error initializing client:', error);
         setInitError(error instanceof Error ? error.message : 'Unknown initialization error');
         if (mounted) {
-          setIsLoading(false);
           setIsMounted(true);
+          setIsLoading(false);
         }
       }
     };
@@ -107,33 +92,29 @@ export default function ClientPage() {
     return () => {
       mounted = false;
       clearTimeout(timeoutId);
-      console.log('ClientPage unmounting');
     };
-  }, [isLoading]);
+  }, []); // Empty dependency array - only run once on mount
 
-  // Add event listener for visibility changes
+  // Separate useEffect for visibility changes
   useEffect(() => {
     if (!isMounted) return;
 
     const handleVisibilityChange = () => {
-      console.log('Visibility changed:', document.visibilityState);
       if (document.visibilityState === 'visible') {
-        const lastVisit = sessionStorage.getItem('lastVisitTime');
-        const currentTime = new Date().getTime();
-        
-        if (lastVisit) {
-          const timeDiff = currentTime - parseInt(lastVisit);
-          console.log('Time since last visit (minutes):', timeDiff / 1000 / 60);
-          if (timeDiff > 30 * 60 * 1000) {
-            console.log('Resetting due to inactivity');
-            handleReset();
-          }
-        }
-        
         try {
+          const lastVisit = sessionStorage.getItem('lastVisitTime');
+          const currentTime = new Date().getTime();
+          
+          if (lastVisit) {
+            const timeDiff = currentTime - parseInt(lastVisit);
+            if (timeDiff > 30 * 60 * 1000) {
+              handleReset();
+            }
+          }
+          
           sessionStorage.setItem('lastVisitTime', currentTime.toString());
         } catch (e) {
-          console.error('Error setting lastVisitTime:', e);
+          console.error('Error handling visibility change:', e);
         }
       }
     };
@@ -142,7 +123,7 @@ export default function ClientPage() {
       try {
         sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
       } catch (e) {
-        console.error('Error setting initial lastVisitTime:', e);
+        console.error('Error setting lastVisitTime:', e);
       }
       document.addEventListener('visibilitychange', handleVisibilityChange);
     }
@@ -176,13 +157,24 @@ export default function ClientPage() {
     }
   };
 
-  if (isLoading || !isMounted) {
-    console.log('ClientPage loading or not mounted');
+  // This is our guaranteed fallback for deployment
+  if (forceRender > 0 && isLoading) {
+    console.log('Force rendering terminal due to timeout');
     return (
-      <main className="bg-black min-h-screen flex items-center justify-center" style={{backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div className="text-green-500 font-mono animate-pulse" style={{color: 'rgb(34, 197, 94)', fontFamily: 'monospace', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
+      <main className="relative">
+        <NoSSRTerminalBoot onBootComplete={handleBootComplete} />
+      </main>
+    );
+  }
+
+  if (isLoading || !isMounted) {
+    return (
+      <main className="bg-black min-h-screen flex items-center justify-center" 
+            style={{backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div className="text-green-500 font-mono animate-pulse" 
+             style={{color: 'rgb(34, 197, 94)', fontFamily: 'monospace', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
           Initializing system...
-          {initError && <div className="text-red-500 mt-2">{initError}</div>}
+          {initError && <div className="text-red-500 mt-2" style={{color: 'red', marginTop: '0.5rem'}}>{initError}</div>}
         </div>
       </main>
     );
@@ -199,6 +191,7 @@ export default function ClientPage() {
           <button
             onClick={handleReset}
             className="fixed bottom-2 right-2 text-xs text-gray-500 opacity-20 hover:opacity-100"
+            style={{position: 'fixed', bottom: '0.5rem', right: '0.5rem', fontSize: '0.75rem', color: 'rgb(107, 114, 128)', opacity: 0.2}}
           >
             Reset Terminal
           </button>
