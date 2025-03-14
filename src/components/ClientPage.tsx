@@ -47,8 +47,17 @@ export default function ClientPage() {
   const [bootComplete, setBootComplete] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  // First useEffect to safely check if we're in a browser environment
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    // Only run this effect in the client
+    if (!isClient) return;
+    
     console.log('ClientPage mounted');
     let mounted = true;
 
@@ -56,14 +65,12 @@ export default function ClientPage() {
       try {
         setIsLoading(true);
         // Check if we have a stored session
-        if (typeof window !== 'undefined') {
-          const hasCompleted = sessionStorage.getItem('bootComplete') === 'true';
-          console.log('Session storage bootComplete:', hasCompleted);
-          if (mounted) {
-            setBootComplete(hasCompleted);
-            setIsMounted(true);
-            setIsLoading(false);
-          }
+        const hasCompleted = sessionStorage.getItem('bootComplete') === 'true';
+        console.log('Session storage bootComplete:', hasCompleted);
+        if (mounted) {
+          setBootComplete(hasCompleted);
+          setIsMounted(true);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error initializing client:', error);
@@ -80,11 +87,11 @@ export default function ClientPage() {
       mounted = false;
       console.log('ClientPage unmounting');
     };
-  }, []);
+  }, [isClient]);
 
   // Add event listener for visibility changes
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isClient || !isMounted) return;
 
     const handleVisibilityChange = () => {
       console.log('Visibility changed:', document.visibilityState);
@@ -105,17 +112,13 @@ export default function ClientPage() {
       }
     };
 
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    }
+    sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     return () => {
-      if (typeof window !== 'undefined') {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isMounted]);
+  }, [isMounted, isClient]);
 
   const handleBootComplete = () => {
     console.log('Boot sequence completed');
