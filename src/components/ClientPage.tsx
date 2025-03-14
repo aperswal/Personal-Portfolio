@@ -3,180 +3,121 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-// Dynamically import components with no SSR - simplified imports
-const NoSSRTerminalBoot = dynamic(() => import('@/components/TerminalBoot'), {
-  ssr: false,
-  loading: () => (
-    <div style={{
-      backgroundColor: 'black',
-      color: 'rgb(34, 197, 94)',
-      fontFamily: 'monospace',
-      height: '100vh',
-      width: '100vw',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-        Loading terminal...
-      </div>
-    </div>
-  ),
-});
+// Dynamically import components with no SSR
+const NoSSRTerminalBoot = dynamic(
+  () => import('@/components/TerminalBoot').then(mod => {
+    console.log('TerminalBoot module loaded:', mod);
+    return mod.default;
+  }),
+  {
+    ssr: false,
+    loading: () => {
+      console.log('Loading TerminalBoot component...');
+      return (
+        <div className="bg-black text-green-500 font-mono p-4 min-h-screen flex items-center justify-center">
+          <div className="animate-pulse">Loading terminal...</div>
+        </div>
+      );
+    },
+  }
+);
 
-const NoSSRDesktopInterface = dynamic(() => import('@/components/DesktopInterface'), {
-  ssr: false,
-  loading: () => (
-    <div style={{
-      backgroundColor: 'black',
-      color: 'rgb(34, 197, 94)',
-      fontFamily: 'monospace',
-      height: '100vh',
-      width: '100vw',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-        Loading desktop...
-      </div>
-    </div>
-  ),
-});
+const NoSSRDesktopInterface = dynamic(
+  () => import('@/components/DesktopInterface').then(mod => {
+    console.log('DesktopInterface module loaded:', mod);
+    return mod.default;
+  }),
+  {
+    ssr: false,
+    loading: () => {
+      console.log('Loading DesktopInterface component...');
+      return (
+        <div className="bg-black min-h-screen flex items-center justify-center">
+          <div className="text-green-500 font-mono animate-pulse">
+            Loading desktop...
+          </div>
+        </div>
+      );
+    },
+  }
+);
 
 export default function ClientPage() {
-  // Core state
-  const [bootComplete, setBootComplete] = useState(false);
+  console.log('Rendering ClientPage');
+  // Always set bootComplete to true to skip terminal boot
+  const [bootComplete, setBootComplete] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
 
-  // Simpler initialization
   useEffect(() => {
-    console.log('ClientPage component mounted');
-    
-    // Shorter timeout - 3 seconds
+    console.log('ClientPage mounted');
+    let mounted = true;
+
+    // Add a failsafe timeout to ensure we don't get stuck loading
     const timeoutId = setTimeout(() => {
-      console.log('Initialization timeout - forcing boot');
-      setIsMounted(true);
-      setIsLoading(false);
-    }, 3000);
-    
-    // Always set isMounted to true after a small delay to ensure client-side rendering
-    const mountedId = setTimeout(() => {
-      setIsMounted(true);
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(mountedId);
-    };
-  }, []);
+      if (mounted && isLoading) {
+        console.log('Initialization timeout triggered - forcing completion');
+        setIsLoading(false);
+        setIsMounted(true);
+      }
+    }, 5000); // 5 seconds timeout
 
-  // Separating sessionStorage into its own effect
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    try {
-      // Once mounted, check sessionStorage
-      const storedBootComplete = sessionStorage.getItem('bootComplete') === 'true';
-      console.log('Session storage bootComplete:', storedBootComplete);
-      setBootComplete(storedBootComplete);
-    } catch (e) {
-      console.error('Error reading from sessionStorage:', e);
-      setError('Storage error: ' + (e instanceof Error ? e.message : String(e)));
-    }
-  }, [isMounted]);
-
-  // Auto-complete terminal in production after a delay
-  useEffect(() => {
-    // Only in production and if we're not already in desktop mode
-    if (process.env.NODE_ENV === 'production' && isMounted && !bootComplete) {
-      console.log('Setting up auto-complete for production');
-      const autoCompleteId = setTimeout(() => {
-        console.log('Auto-completing boot sequence in production');
-        setBootComplete(true);
-        try {
-          sessionStorage.setItem('bootComplete', 'true');
-        } catch (e) {
-          console.error('Failed to save boot completion state:', e);
+    const initializeClient = async () => {
+      try {
+        // Simplified initialization
+        if (mounted) {
+          setIsMounted(true);
+          setIsLoading(false);
         }
-      }, 10000); // Wait 10 seconds then auto-complete
-      
-      return () => clearTimeout(autoCompleteId);
-    }
-  }, [isMounted, bootComplete]);
+      } catch (error) {
+        console.error('Error initializing client:', error);
+        setInitError(error instanceof Error ? error.message : 'Unknown initialization error');
+        if (mounted) {
+          setIsLoading(false);
+          setIsMounted(true);
+        }
+      }
+    };
 
-  const handleBootComplete = () => {
-    console.log('Boot sequence completed');
-    setBootComplete(true);
-    try {
-      sessionStorage.setItem('bootComplete', 'true');
-    } catch (e) {
-      console.error('Error saving boot status:', e);
-    }
-  };
+    initializeClient();
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+      console.log('ClientPage unmounting');
+    };
+  }, [isLoading]);
+
+  // Simplified - removed the visibility change event listener
 
   const handleReset = () => {
-    console.log('Resetting boot sequence');
-    setBootComplete(false);
-    try {
-      sessionStorage.removeItem('bootComplete');
-    } catch (e) {
-      console.error('Error clearing boot status:', e);
-    }
+    console.log('Reset button clicked, but no action taken in bypass mode');
+    // No-op in this simplified version
   };
 
-  // Loading state
   if (isLoading || !isMounted) {
+    console.log('ClientPage loading or not mounted');
     return (
-      <div style={{
-        backgroundColor: 'black',
-        color: 'rgb(34, 197, 94)',
-        fontFamily: 'monospace',
-        height: '100vh',
-        width: '100vw',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-          Initializing system...
-          {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+      <main className="bg-black min-h-screen flex items-center justify-center" style={{backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div className="text-green-500 font-mono animate-pulse" style={{color: 'rgb(34, 197, 94)', fontFamily: 'monospace', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
+          Loading desktop environment...
+          {initError && <div className="text-red-500 mt-2">{initError}</div>}
         </div>
-      </div>
+      </main>
     );
   }
 
-  // Main content
+  console.log('Rendering desktop interface directly');
   return (
-    <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
-      {!bootComplete ? (
-        <NoSSRTerminalBoot onBootComplete={handleBootComplete} />
-      ) : (
-        <>
-          <NoSSRDesktopInterface />
-          <button
-            onClick={handleReset}
-            style={{
-              position: 'fixed',
-              bottom: '8px',
-              right: '8px',
-              fontSize: '0.75rem',
-              color: 'rgb(107, 114, 128)',
-              opacity: 0.2,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.2')}
-          >
-            Reset Terminal
-          </button>
-        </>
-      )}
-    </div>
+    <main className="relative">
+      <NoSSRDesktopInterface />
+      <button
+        onClick={handleReset}
+        className="fixed bottom-2 right-2 text-xs text-gray-500 opacity-20 hover:opacity-100"
+      >
+        Reset Terminal
+      </button>
+    </main>
   );
 } 
