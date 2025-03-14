@@ -10,12 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  swcMinify: true,
-  output: 'standalone',
-  experimental: {
-    // Enable improved server-side rendering
-    serverActions: true,
-  },
   async headers() {
     return [
       {

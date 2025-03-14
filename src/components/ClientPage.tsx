@@ -47,33 +47,54 @@ export default function ClientPage() {
   const [bootComplete, setBootComplete] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClient, setIsClient] = useState(false);
-
-  // First useEffect to safely check if we're in a browser environment
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only run this effect in the client
-    if (!isClient) return;
-    
     console.log('ClientPage mounted');
     let mounted = true;
+
+    // Add a failsafe timeout to ensure we don't get stuck loading
+    const timeoutId = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.log('Initialization timeout triggered - forcing completion');
+        setIsLoading(false);
+        setIsMounted(true);
+      }
+    }, 5000); // 5 seconds timeout
 
     const initializeClient = async () => {
       try {
         setIsLoading(true);
         // Check if we have a stored session
-        const hasCompleted = sessionStorage.getItem('bootComplete') === 'true';
-        console.log('Session storage bootComplete:', hasCompleted);
-        if (mounted) {
-          setBootComplete(hasCompleted);
-          setIsMounted(true);
-          setIsLoading(false);
+        if (typeof window !== 'undefined') {
+          try {
+            const hasCompleted = sessionStorage.getItem('bootComplete') === 'true';
+            console.log('Session storage bootComplete:', hasCompleted);
+            if (mounted) {
+              setBootComplete(hasCompleted);
+              setIsMounted(true);
+              setIsLoading(false);
+            }
+          } catch (storageError) {
+            console.error('Session storage error:', storageError);
+            // Continue even if sessionStorage fails
+            if (mounted) {
+              setIsMounted(true);
+              setIsLoading(false);
+            }
+          }
+        } else {
+          // If window is undefined, we're still in SSR but the effect is running
+          // This shouldn't happen with 'use client', but add a failsafe
+          console.log('Window is undefined in effect, forcing client init');
+          if (mounted) {
+            setIsMounted(true);
+            setIsLoading(false);
+          }
         }
       } catch (error) {
         console.error('Error initializing client:', error);
+        setInitError(error instanceof Error ? error.message : 'Unknown initialization error');
         if (mounted) {
           setIsLoading(false);
           setIsMounted(true);
@@ -85,13 +106,14 @@ export default function ClientPage() {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       console.log('ClientPage unmounting');
     };
-  }, [isClient]);
+  }, [isLoading]);
 
   // Add event listener for visibility changes
   useEffect(() => {
-    if (!isClient || !isMounted) return;
+    if (!isMounted) return;
 
     const handleVisibilityChange = () => {
       console.log('Visibility changed:', document.visibilityState);
@@ -108,38 +130,59 @@ export default function ClientPage() {
           }
         }
         
-        sessionStorage.setItem('lastVisitTime', currentTime.toString());
+        try {
+          sessionStorage.setItem('lastVisitTime', currentTime.toString());
+        } catch (e) {
+          console.error('Error setting lastVisitTime:', e);
+        }
       }
     };
 
-    sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
+      } catch (e) {
+        console.error('Error setting initial lastVisitTime:', e);
+      }
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
     
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (typeof window !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
     };
-  }, [isMounted, isClient]);
+  }, [isMounted]);
 
   const handleBootComplete = () => {
     console.log('Boot sequence completed');
     setBootComplete(true);
-    sessionStorage.setItem('bootComplete', 'true');
-    sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
+    try {
+      sessionStorage.setItem('bootComplete', 'true');
+      sessionStorage.setItem('lastVisitTime', new Date().getTime().toString());
+    } catch (e) {
+      console.error('Error saving boot completion:', e);
+    }
   };
 
   const handleReset = () => {
     console.log('Resetting boot sequence');
     setBootComplete(false);
-    sessionStorage.removeItem('bootComplete');
-    sessionStorage.removeItem('lastVisitTime');
+    try {
+      sessionStorage.removeItem('bootComplete');
+      sessionStorage.removeItem('lastVisitTime');
+    } catch (e) {
+      console.error('Error during reset:', e);
+    }
   };
 
   if (isLoading || !isMounted) {
     console.log('ClientPage loading or not mounted');
     return (
-      <main className="bg-black min-h-screen flex items-center justify-center">
-        <div className="text-green-500 font-mono animate-pulse">
+      <main className="bg-black min-h-screen flex items-center justify-center" style={{backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div className="text-green-500 font-mono animate-pulse" style={{color: 'rgb(34, 197, 94)', fontFamily: 'monospace', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>
           Initializing system...
+          {initError && <div className="text-red-500 mt-2">{initError}</div>}
         </div>
       </main>
     );
