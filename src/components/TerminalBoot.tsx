@@ -42,8 +42,9 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
 
   // Display boot messages
   useEffect(() => {
-    // Skip the boot animation if we're in a production environment
-    if (process.env.NODE_ENV === 'production' && window.location.hostname !== 'localhost') {
+    // Skip the boot animation in production for reliability
+    // Removed the window.location.hostname check as it may not work correctly on Vercel
+    if (process.env.NODE_ENV === 'production') {
       console.log('Production environment detected, skipping boot animation');
       // Show all messages at once
       setMessages(bootSequence.map(msg => msg.text));
@@ -56,7 +57,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
       return;
     }
     
-    // Display messages sequentially
+    // Display messages sequentially (only in development)
     if (currentIndex < bootSequence.length) {
       const timer = setTimeout(() => {
         setMessages(prev => [...prev, bootSequence[currentIndex].text]);

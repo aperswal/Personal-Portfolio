@@ -89,6 +89,25 @@ export default function ClientPage() {
     }
   }, [isMounted]);
 
+  // Auto-complete terminal in production after a delay
+  useEffect(() => {
+    // Only in production and if we're not already in desktop mode
+    if (process.env.NODE_ENV === 'production' && isMounted && !bootComplete) {
+      console.log('Setting up auto-complete for production');
+      const autoCompleteId = setTimeout(() => {
+        console.log('Auto-completing boot sequence in production');
+        setBootComplete(true);
+        try {
+          sessionStorage.setItem('bootComplete', 'true');
+        } catch (e) {
+          console.error('Failed to save boot completion state:', e);
+        }
+      }, 10000); // Wait 10 seconds then auto-complete
+      
+      return () => clearTimeout(autoCompleteId);
+    }
+  }, [isMounted, bootComplete]);
+
   const handleBootComplete = () => {
     console.log('Boot sequence completed');
     setBootComplete(true);
