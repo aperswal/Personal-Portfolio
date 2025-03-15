@@ -48,13 +48,66 @@ const wallpapers = [
   '/wallpapers/wallpaper7.jpg',
 ];
 
-// Add a new CSS class for dock animations
-const dockItemClass = `
+// Add a new CSS class for dock animations with scaling
+const getDockItemClass = (scale: number) => `
   relative flex flex-col items-center justify-center
   transition-all duration-150 ease-in-out
   hover:scale-150
   group
 `;
+
+// Define screen size breakpoints and scaling factors
+interface ScreenScale {
+  scale: number;
+  iconSize: number;
+  iconGap: number;
+  iconColumns: number;
+  maxIconsPerColumn: number;
+}
+
+// Function to calculate scaling based on screen dimensions
+const calculateScreenScale = (width: number, height: number): ScreenScale => {
+  // Base scale calculated from screen diagonal (approximating screen size)
+  const diagonal = Math.sqrt(width * width + height * height);
+  
+  // Reference values for a 15-inch display (approx 1440x900 resolution)
+  const referenceWidth = 1440;
+  const referenceHeight = 900;
+  const referenceDiagonal = Math.sqrt(referenceWidth * referenceWidth + referenceHeight * referenceHeight);
+  
+  // Calculate base scale based on diagonal ratio
+  const baseScale = Math.min(1, Math.max(0.6, diagonal / referenceDiagonal));
+  
+  // For different screen sizes:
+  if (diagonal > referenceDiagonal * 1.1) {
+    // Larger screens (16+ inch)
+    return {
+      scale: Math.min(1.15, baseScale),
+      iconSize: 100,
+      iconGap: 12,
+      iconColumns: Math.min(4, Math.floor(width / 320)),
+      maxIconsPerColumn: Math.floor(height / 140)
+    };
+  } else if (diagonal < referenceDiagonal * 0.85) {
+    // Smaller screens (13-14 inch)
+    return {
+      scale: Math.max(0.75, baseScale),
+      iconSize: 80,
+      iconGap: 6,
+      iconColumns: Math.max(2, Math.min(3, Math.floor(width / 220))),
+      maxIconsPerColumn: Math.floor(height / 110)
+    };
+  } else {
+    // Medium screens (15 inch - baseline)
+    return {
+      scale: 1,
+      iconSize: 90,
+      iconGap: 8,
+      iconColumns: 3,
+      maxIconsPerColumn: Math.floor(height / 120)
+    };
+  }
+};
 
 const DesktopInterface = () => {
   const [activeWindows, setActiveWindows] = useState<Set<string>>(new Set());
@@ -70,6 +123,21 @@ const DesktopInterface = () => {
   const dockTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [isWallpaperTransitioning, setIsWallpaperTransitioning] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  
+  // Add screen scale state
+  const [screenScale, setScreenScale] = useState<ScreenScale>({
+    scale: 1,
+    iconSize: 90,
+    iconGap: 8,
+    iconColumns: 3,
+    maxIconsPerColumn: 5
+  });
+  
+  // Add window dimensions state
+  const [windowDimensions, setWindowDimensions] = useState({ 
+    width: typeof window !== 'undefined' ? window.innerWidth : 1440,
+    height: typeof window !== 'undefined' ? window.innerHeight : 900
+  });
 
   const handleWindowOpen = (id: string) => {
     setActiveWindows(prev => new Set([...prev, id]));
@@ -261,22 +329,33 @@ const DesktopInterface = () => {
   }, [currentWallpaper]);
 
   useEffect(() => {
-    // Check if device is mobile
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    // Check if device is mobile and calculate screen scale
+    const updateScreenSize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      setWindowDimensions({ width, height });
+      setIsMobile(width <= 768); // Mobile breakpoint
+      
+      // Calculate scaling factors based on screen size
+      if (width > 768) { // Only apply scaling for non-mobile
+        const newScale = calculateScreenScale(width, height);
+        setScreenScale(newScale);
+        console.log('Screen scaling updated:', newScale);
+      }
     };
 
     // Initial check
-    checkMobile();
+    updateScreenSize();
 
     // Check on resize
-    window.addEventListener('resize', checkMobile);
+    window.addEventListener('resize', updateScreenSize);
     
     // Check if warning was previously ignored
     const ignored = localStorage.getItem('ignoreMobileWarning') === 'true';
     setIgnoreMobileWarning(ignored);
 
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', updateScreenSize);
   }, []);
 
   // Update dock visibility handler with shorter timeout
@@ -331,10 +410,93 @@ const DesktopInterface = () => {
         x: 50 + (activeWindows.size * 20), 
         y: 50 + (activeWindows.size * 20) 
       },
+      scale: screenScale.scale,
       children: icon.content
     };
     
     return <Window key={id} {...windowProps} />;
+  };
+
+  // Add a function to organize desktop icons into a grid
+  const organizeDesktopIcons = () => {
+    const { iconColumns, maxIconsPerColumn } = screenScale;
+    
+    // Create a grid layout with the maximum number of icons per column
+    let grid: DesktopIcon[][] = Array(iconColumns).fill(0).map(() => []);
+    
+    // Distribute icons across columns
+    desktopIcons.forEach((icon, index) => {
+      const columnIndex = index % iconColumns;
+      grid[columnIndex].push(icon);
+    });
+    
+    // Ensure no column exceeds maxIconsPerColumn
+    grid = grid.map(column => {
+      if (column.length > maxIconsPerColumn) {
+        // If there are more icons than maxIconsPerColumn, distribute to other columns
+        return column.slice(0, maxIconsPerColumn);
+      }
+      return column;
+    });
+    
+    return grid;
+  };
+  
+  // Desktop Icons rendering with new organization
+  const renderDesktopIcons = () => {
+    // Use single flat array of icons if we have no dimensions yet
+    if (!isMounted || windowDimensions.width === 0) {
+      return desktopIcons.map((icon, index) => renderDesktopIcon(icon, index));
+    }
+    
+    // Organize icons into a grid
+    const iconGrid = organizeDesktopIcons();
+    
+    return (
+      <div 
+        className="grid gap-x-4" 
+        style={{ 
+          gridTemplateColumns: `repeat(${screenScale.iconColumns}, minmax(0, 1fr))`,
+          gap: `${screenScale.iconGap * screenScale.scale}px`,
+          marginRight: `${20 * screenScale.scale}px`,
+        }}
+      >
+        {iconGrid.map((column, colIndex) => (
+          <div key={`col-${colIndex}`} className="flex flex-col gap-y-4">
+            {column.map((icon, iconIndex) => renderDesktopIcon(icon, colIndex * 10 + iconIndex))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
+  // Individual desktop icon renderer
+  const renderDesktopIcon = (icon: DesktopIcon, index: number) => {
+    return (
+      <button
+        key={icon.id}
+        onClick={() => handleWindowOpen(icon.id)}
+        className="desktop-icon group flex flex-col items-center"
+        style={{ 
+          animationDelay: `${index * 100}ms`,
+          width: `${screenScale.iconSize * screenScale.scale}px`,
+          height: `${screenScale.iconSize * 1.3 * screenScale.scale}px`,
+        }}
+      >
+        <div className="relative p-3 rounded-xl group-hover:bg-white/10 transition-all flex flex-col items-center">
+          <span className="block mb-2 group-hover:scale-110 transition-transform drop-shadow-lg" 
+                style={{ fontSize: `${3 * screenScale.scale}rem` }}>
+            {icon.icon}
+          </span>
+          <span 
+            className="text-sm font-medium text-center break-words text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] line-clamp-2 px-1"
+            style={{ fontSize: `${0.875 * screenScale.scale}rem` }}
+          >
+            {icon.title}
+          </span>
+        </div>
+      </button>
+    );
   };
 
   if (!isMounted) {
@@ -360,6 +522,7 @@ const DesktopInterface = () => {
           onMaximize={handleWindowMaximize}
           onClose={handleWindowClose}
           activeWindowId={maximizedWindow}
+          scale={screenScale.scale}
         />
         
         {/* Current Wallpaper */}
@@ -397,56 +560,59 @@ const DesktopInterface = () => {
           className="absolute inset-0 z-[1] bg-gradient-to-b from-black/10 to-black/20"
         />
 
-        {/* Desktop Icons - Updated for right alignment and bigger size */}
-        <div className="fixed right-12 top-12 z-[2]">
-          <div 
-            className="grid grid-cols-3 gap-8 justify-items-end" 
-            style={{ 
-              gridTemplateRows: 'repeat(auto-fill, 120px)',
-              direction: 'rtl'
-            }}
-          >
-            {desktopIcons.map((icon, index) => (
-              <button
-                key={icon.id}
-                onClick={() => handleWindowOpen(icon.id)}
-                className="desktop-icon group flex flex-col items-center w-28"
-                style={{ 
-                  animationDelay: `${index * 100}ms`,
-                  direction: 'ltr'  // Reset direction for icon content
-                }}
-              >
-                <div className="relative p-3 rounded-xl group-hover:bg-white/10 transition-all">
-                  <span className="text-5xl block mb-2 group-hover:scale-110 transition-transform drop-shadow-lg">
-                    {icon.icon}
-                  </span>
-                  <span className="text-sm font-medium text-center break-words text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] line-clamp-2 px-1">
-                    {icon.title}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
+        {/* Desktop Icons - with responsive layout */}
+        <div 
+          className="fixed z-[2]" 
+          style={{ 
+            right: `${12 * screenScale.scale}px`, 
+            top: `${12 * screenScale.scale}px`
+          }}
+        >
+          {renderDesktopIcons()}
         </div>
 
         {/* Windows Layer */}
         <div className="relative z-[3]">
-          {Array.from(activeWindows).map(renderWindow)}
+          {Array.from(activeWindows).map(id => renderWindow(id))}
         </div>
 
-        {/* Enhanced Dock */}
+        {/* Enhanced Dock with scaling */}
         <div 
           className={cn(
             "fixed bottom-4 left-1/2 -translate-x-1/2 z-[4] transition-all duration-300",
             showDock ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
           )}
+          style={{
+            bottom: `${16 * screenScale.scale}px`,
+            transform: `translateX(-50%) scale(${screenScale.scale})`,
+            transformOrigin: 'bottom center'
+          }}
         >
-          <div className="flex items-end gap-4 px-8 py-3 bg-gray-800/40 backdrop-blur-md rounded-2xl border border-white/10">
+          <div className="flex items-end gap-4 px-8 py-3 bg-gray-800/40 backdrop-blur-md rounded-2xl border border-white/10"
+               style={{ 
+                 padding: `${12 * screenScale.scale}px ${32 * screenScale.scale}px`,
+                 gap: `${16 * screenScale.scale}px`,
+                 borderRadius: `${16 * screenScale.scale}px`,
+               }}>
             {dockIcons.map((icon, index) => (
               icon === null ? (
-                <div key={`separator-${index}`} className="w-px h-10 bg-white/20 mx-4" />
+                <div 
+                  key={`separator-${index}`} 
+                  className="w-px h-10 bg-white/20 mx-4" 
+                  style={{ 
+                    width: `${1 * screenScale.scale}px`, 
+                    height: `${40 * screenScale.scale}px`,
+                    margin: `0 ${16 * screenScale.scale}px`,
+                  }} 
+                />
               ) : (
-                <div key={icon.id} className="group/dock relative py-2 px-1">
+                <div 
+                  key={icon.id} 
+                  className="group/dock relative py-2 px-1"
+                  style={{ 
+                    padding: `${8 * screenScale.scale}px ${4 * screenScale.scale}px`
+                  }}
+                >
                   <button 
                     ref={(el) => {
                       if (el) {
@@ -455,7 +621,7 @@ const DesktopInterface = () => {
                         dockIconRefs.current.delete(icon.id);
                       }
                     }}
-                    className={dockItemClass}
+                    className={getDockItemClass(screenScale.scale)}
                     onClick={() => {
                       if (minimizedWindows.has(icon.id)) {
                         setMinimizedWindows(prev => {
@@ -470,8 +636,20 @@ const DesktopInterface = () => {
                   >
                     {/* Show minimized window preview if it exists */}
                     {minimizedWindows.has(icon.id) ? (
-                      <div className="absolute -top-32 scale-0 group-hover/dock:scale-100 transition-all">
-                        <div className="w-48 h-32 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-lg overflow-hidden">
+                      <div 
+                        className="absolute -top-32 scale-0 group-hover/dock:scale-100 transition-all"
+                        style={{ 
+                          top: `-${128 * screenScale.scale}px`,
+                        }}
+                      >
+                        <div 
+                          className="w-48 h-32 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-lg overflow-hidden"
+                          style={{ 
+                            width: `${192 * screenScale.scale}px`, 
+                            height: `${128 * screenScale.scale}px`,
+                            borderRadius: `${8 * screenScale.scale}px`,
+                          }}
+                        >
                           {/* Mini preview of the window content */}
                           <div className="w-full h-full transform scale-[0.2] origin-top-left">
                             {desktopIcons.find(di => di.id === icon.id)?.content}
@@ -479,15 +657,35 @@ const DesktopInterface = () => {
                         </div>
                       </div>
                     ) : null}
-                    <span className="text-5xl transition-all duration-150 group-hover/dock:scale-125">
+                    <span 
+                      className="text-5xl transition-all duration-150 group-hover/dock:scale-125"
+                      style={{ 
+                        fontSize: `${48 * screenScale.scale}px`,
+                      }}
+                    >
                       {icon.icon}
                     </span>
-                    <span className="absolute -top-10 scale-0 group-hover/dock:scale-100 transition-all bg-gray-800/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+                    <span 
+                      className="absolute -top-10 scale-0 group-hover/dock:scale-100 transition-all bg-gray-800/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"
+                      style={{ 
+                        top: `-${40 * screenScale.scale}px`,
+                        padding: `${6 * screenScale.scale}px ${12 * screenScale.scale}px`,
+                        fontSize: `${12 * screenScale.scale}px`,
+                        borderRadius: `${8 * screenScale.scale}px`,
+                      }}
+                    >
                       {icon.title}
                     </span>
                     {/* Show dot indicator for minimized windows */}
                     {minimizedWindows.has(icon.id) && (
-                      <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-white" />
+                      <span 
+                        className="absolute -bottom-1 w-1 h-1 rounded-full bg-white" 
+                        style={{ 
+                          bottom: `-${4 * screenScale.scale}px`,
+                          width: `${4 * screenScale.scale}px`,
+                          height: `${4 * screenScale.scale}px`,
+                        }}
+                      />
                     )}
                   </button>
                 </div>
@@ -495,11 +693,17 @@ const DesktopInterface = () => {
             ))}
           </div>
           {/* Dock Reflection */}
-          <div className="dock-reflection" />
+          <div 
+            className="dock-reflection"
+            style={{ 
+              height: `${20 * screenScale.scale}px`,
+              bottom: `-${10 * screenScale.scale}px`,
+            }}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default DesktopInterface; 
+export default withNoSSR(DesktopInterface); 

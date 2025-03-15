@@ -5,7 +5,7 @@ import { Battery, Wifi, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MenuItem {
-  label: string;
+  label?: string;
   action?: () => void;
   shortcut?: string;
   submenu?: MenuItem[];
@@ -17,9 +17,16 @@ interface MenuBarProps {
   onMaximize: (id: string) => void;
   onClose: (id: string) => void;
   activeWindowId: string | null;
+  scale?: number;
 }
 
-export function MenuBar({ onMinimize, onMaximize, onClose, activeWindowId }: MenuBarProps) {
+export function MenuBar({ 
+  onMinimize, 
+  onMaximize, 
+  onClose, 
+  activeWindowId,
+  scale = 1
+}: MenuBarProps) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const menuItems: Record<string, MenuItem[]> = {
@@ -85,9 +92,20 @@ export function MenuBar({ onMinimize, onMaximize, onClose, activeWindowId }: Men
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-7 bg-gray-800/40 backdrop-blur-md border-b border-white/10 flex items-center px-4 z-50">
+    <div 
+      className="fixed top-0 left-0 right-0 bg-gray-800/40 backdrop-blur-md border-b border-white/10 flex items-center px-4 z-50"
+      style={{ 
+        height: `${28 * scale}px`, 
+        fontSize: `${14 * scale}px` 
+      }}
+    >
       <div className="flex items-center space-x-2">
-        <span className="text-lg px-2">🍎</span>
+        <span 
+          className="text-lg px-2" 
+          style={{ fontSize: `${1.125 * scale}rem` }}
+        >
+          🍎
+        </span>
       </div>
       {Object.entries(menuItems).map(([menu, items]) => (
         <div key={menu} className="relative">
@@ -96,6 +114,7 @@ export function MenuBar({ onMinimize, onMaximize, onClose, activeWindowId }: Men
               "px-3 py-1 text-sm hover:bg-white/10 rounded",
               activeMenu === menu && "bg-white/10"
             )}
+            style={{ padding: `${4 * scale}px ${12 * scale}px` }}
             onClick={() => setActiveMenu(activeMenu === menu ? null : menu)}
             onMouseEnter={() => activeMenu && setActiveMenu(menu)}
           >
@@ -104,17 +123,28 @@ export function MenuBar({ onMinimize, onMaximize, onClose, activeWindowId }: Men
 
           {activeMenu === menu && (
             <div 
-              className="absolute top-full left-0 mt-1 w-64 bg-gray-800/95 backdrop-blur-md rounded-lg shadow-xl border border-white/10"
+              className="absolute top-full left-0 mt-1 bg-gray-800/95 backdrop-blur-md rounded-lg shadow-xl border border-white/10"
+              style={{ 
+                marginTop: `${4 * scale}px`,
+                width: `${256 * scale}px` 
+              }}
               onMouseLeave={() => setActiveMenu(null)}
             >
               <div className="py-1">
                 {items.map((item, index) => (
                   item.separator ? (
-                    <div key={index} className="h-px bg-white/10 my-1" />
+                    <div 
+                      key={index} 
+                      className="h-px bg-white/10 my-1" 
+                      style={{ margin: `${4 * scale}px 0` }}
+                    />
                   ) : (
                     <button
                       key={index}
                       className="w-full px-4 py-1 text-left text-sm hover:bg-blue-500 flex justify-between items-center group"
+                      style={{ 
+                        padding: `${4 * scale}px ${16 * scale}px` 
+                      }}
                       onClick={() => {
                         item.action?.();
                         setActiveMenu(null);

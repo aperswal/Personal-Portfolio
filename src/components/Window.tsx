@@ -26,6 +26,7 @@ export interface WindowProps {
   isMinimized: boolean;
   dockBounds?: DOMRect | null;
   onMaximizedChange?: (isMaximized: boolean) => void;
+  scale?: number;
 }
 
 const WindowComponent: React.FC<WindowProps> = ({
@@ -39,7 +40,8 @@ const WindowComponent: React.FC<WindowProps> = ({
   defaultPosition = { x: 50, y: 50 },
   isMinimized,
   dockBounds,
-  onMaximizedChange
+  onMaximizedChange,
+  scale = 1
 }) => {
   const [position, setPosition] = useState<Position>(defaultPosition);
   const [size, setSize] = useState<Size>({ width: 800, height: 600 });
@@ -238,9 +240,9 @@ const WindowComponent: React.FC<WindowProps> = ({
       style={{
         ...(!isMaximized ? {
           left: position.x,
-          top: Math.max(28, position.y),
+          top: Math.max(28 * scale, position.y),
           width: size.width,
-          height: Math.min(size.height, window.innerHeight - Math.max(28, position.y)),
+          height: Math.min(size.height, window.innerHeight - Math.max(28 * scale, position.y)),
         } : undefined),
         transform: isMinimized 
           ? `scale(0.1) translate(${minimizeTarget.x}px, ${minimizeTarget.y}px)` 
@@ -256,35 +258,39 @@ const WindowComponent: React.FC<WindowProps> = ({
           "h-8 bg-gray-700/50 rounded-t-lg flex items-center relative",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
+        style={{ height: `${32 * scale}px` }}
         onMouseDown={handleMouseDown}
       >
         {/* Window Controls - explicitly positioned at left */}
-        <div className="absolute left-3 flex space-x-2 z-10">
+        <div className="absolute left-3 flex space-x-2 z-10" style={{ left: `${12 * scale}px`, gap: `${8 * scale}px` }}>
           <button
             onClick={onClose}
             className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
+            style={{ width: `${12 * scale}px`, height: `${12 * scale}px` }}
             title="Close"
           />
           <button
             onClick={onMinimize}
             className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors"
+            style={{ width: `${12 * scale}px`, height: `${12 * scale}px` }}
             title="Minimize"
           />
           <button
             onClick={onMaximize}
             className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors"
+            style={{ width: `${12 * scale}px`, height: `${12 * scale}px` }}
             title="Maximize"
           />
         </div>
 
         {/* Window Title - centered */}
-        <div className="flex-1 text-center text-sm text-gray-300">
+        <div className="flex-1 text-center text-sm text-gray-300" style={{ fontSize: `${14 * scale}px` }}>
           {title}
         </div>
       </div>
 
       {/* Window Content */}
-      <div className="overflow-auto" style={{ height: 'calc(100% - 2rem)' }}>
+      <div className="overflow-auto" style={{ height: `calc(100% - ${32 * scale}px)` }}>
         {children}
       </div>
 
@@ -292,14 +298,30 @@ const WindowComponent: React.FC<WindowProps> = ({
       {!isMaximized && (
         <>
           <div className="absolute inset-0 pointer-events-none border border-transparent hover:border-blue-500/30 rounded-lg" />
-          <div className="absolute top-0 left-0 w-2 h-2 cursor-nw-resize" onMouseDown={startResize('nw')} />
-          <div className="absolute top-0 right-0 w-2 h-2 cursor-ne-resize" onMouseDown={startResize('ne')} />
-          <div className="absolute bottom-0 left-0 w-2 h-2 cursor-sw-resize" onMouseDown={startResize('sw')} />
-          <div className="absolute bottom-0 right-0 w-2 h-2 cursor-se-resize" onMouseDown={startResize('se')} />
-          <div className="absolute top-0 left-2 right-2 h-1 cursor-n-resize" onMouseDown={startResize('n')} />
-          <div className="absolute bottom-0 left-2 right-2 h-1 cursor-s-resize" onMouseDown={startResize('s')} />
-          <div className="absolute left-0 top-2 bottom-2 w-1 cursor-w-resize" onMouseDown={startResize('w')} />
-          <div className="absolute right-0 top-2 bottom-2 w-1 cursor-e-resize" onMouseDown={startResize('e')} />
+          <div className="absolute top-0 left-0 w-2 h-2 cursor-nw-resize" 
+               style={{ width: `${8 * scale}px`, height: `${8 * scale}px` }}
+               onMouseDown={startResize('nw')} />
+          <div className="absolute top-0 right-0 w-2 h-2 cursor-ne-resize" 
+               style={{ width: `${8 * scale}px`, height: `${8 * scale}px` }}
+               onMouseDown={startResize('ne')} />
+          <div className="absolute bottom-0 left-0 w-2 h-2 cursor-sw-resize" 
+               style={{ width: `${8 * scale}px`, height: `${8 * scale}px` }}
+               onMouseDown={startResize('sw')} />
+          <div className="absolute bottom-0 right-0 w-2 h-2 cursor-se-resize" 
+               style={{ width: `${8 * scale}px`, height: `${8 * scale}px` }}
+               onMouseDown={startResize('se')} />
+          <div className="absolute top-0 left-2 right-2 h-1 cursor-n-resize" 
+               style={{ left: `${8 * scale}px`, right: `${8 * scale}px`, height: `${4 * scale}px` }}
+               onMouseDown={startResize('n')} />
+          <div className="absolute bottom-0 left-2 right-2 h-1 cursor-s-resize" 
+               style={{ left: `${8 * scale}px`, right: `${8 * scale}px`, height: `${4 * scale}px` }}
+               onMouseDown={startResize('s')} />
+          <div className="absolute left-0 top-2 bottom-2 w-1 cursor-w-resize" 
+               style={{ top: `${8 * scale}px`, bottom: `${8 * scale}px`, width: `${4 * scale}px` }}
+               onMouseDown={startResize('w')} />
+          <div className="absolute right-0 top-2 bottom-2 w-1 cursor-e-resize" 
+               style={{ top: `${8 * scale}px`, bottom: `${8 * scale}px`, width: `${4 * scale}px` }}
+               onMouseDown={startResize('e')} />
         </>
       )}
     </div>
