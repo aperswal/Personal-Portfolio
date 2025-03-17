@@ -298,7 +298,6 @@ const DesktopInterface = () => {
     null,
     
     // Content & Communication
-    { id: 'blogs', icon: '📝', title: 'Blogs.app' },
     { id: 'projects', icon: '💻', title: 'Projects.app' },
     { id: 'skills', icon: '🎯', title: 'Skills.sys' },
     { id: 'contact', icon: '📧', title: 'Contact.txt' },

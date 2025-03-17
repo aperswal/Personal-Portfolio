@@ -10,7 +10,7 @@ export function About() {
         <div className="flex flex-col items-center text-center mb-8">
           <div className="w-32 h-32 rounded-full overflow-hidden mb-4 ring-4 ring-green-400/20">
             <Image
-              src="/headshot.jpg"
+              src="/headshot.JPG"
               alt="Profile Picture"
               width={128}
               height={128}
