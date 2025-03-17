@@ -11,6 +11,13 @@ export function Projects() {
       link: "https://github.com/aperswal/Personal-Portfolio"
     },
     {
+      title: "HyppoHealth",
+      description: "A platform reshaping how Americans navigate healthcare with free tools and expert-backed resources for understanding and optimizing healthcare costs. Features include insurance comparison tools, cost calculators, and comprehensive educational resources.",
+      stats: "Healthcare Tech",
+      tech: "Web Development, Healthcare Systems, UI/UX Design",
+      link: "https://hyppohealth.com/"
+    },
+    {
       title: "CloudFormation To Terraform",
       description: "Popular open-source tool (42 stars, 6 forks) that converts AWS CloudFormation templates to Terraform configurations with both web and CLI interfaces. Features include multi-file support, state file generation, security analysis, and documentation generation.",
       stats: "Infrastructure as Code",

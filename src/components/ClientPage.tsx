@@ -48,6 +48,28 @@ export default function ClientPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if the device is mobile
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|windows phone/i;
+      return mobileRegex.test(userAgent) || window.innerWidth < 768;
+    };
+
+    setIsMobile(checkMobile());
+
+    // Add resize listener to update mobile state if needed
+    const handleResize = () => {
+      setIsMobile(checkMobile());
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     console.log('ClientPage mounted');
@@ -175,6 +197,23 @@ export default function ClientPage() {
       console.error('Error during reset:', e);
     }
   };
+
+  // If on mobile, display blocking message
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 text-center">
+        <h1 className="text-2xl font-bold mb-4">Desktop Experience Only</h1>
+        <p className="mb-6">
+          This portfolio is designed to simulate a desktop operating system experience
+          and is only available on desktop devices.
+        </p>
+        <p className="text-gray-400">
+          Please visit this site on a laptop or desktop computer for the full experience.
+        </p>
+        <div className="mt-8 text-5xl">💻</div>
+      </div>
+    );
+  }
 
   if (isLoading || !isMounted) {
     console.log('ClientPage loading or not mounted');
