@@ -18,6 +18,19 @@ interface Artwork {
 
 const artworks: Artwork[] = [
   {
+    id: "sierra",
+    title: "Among the Sierra Nevada, California",
+    artist: "Albert Bierstadt",
+    year: "1868",
+    image: "/among_the_sierra_nevada.jpg",
+    technique: "Oil on canvas",
+    dimensions: "72 × 120 inches",
+    location: "Smithsonian American Art Museum, Washington, D.C.",
+    movement: "Hudson River School",
+    description: "A dramatic landscape depicting the Sierra Nevada mountains with radiant light and atmospheric effects.",
+    significance: "This painting exemplifies Bierstadt's romanticized vision of the American West, emphasizing the sublime grandeur of the wilderness."
+  },
+  {
     id: "convergence",
     title: "Convergence",
     artist: "Jackson Pollock",
