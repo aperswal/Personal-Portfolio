@@ -18,11 +18,11 @@ const fileSystem: FileItem[] = [
     type: 'folder',
     icon: '📁',
     children: [
-      { id: 'about-me', name: 'AboutMe.exe', type: 'file', icon: '👤' },
+      { id: 'about-me', name: 'AboutMe.app', type: 'file', icon: '👤' },
       { id: 'education', name: 'Education.app', type: 'file', icon: '🎓' },
       { id: 'work-history', name: 'Work History.app', type: 'file', icon: '💼' },
       { id: 'projects', name: 'Projects.app', type: 'file', icon: '💻' },
-      { id: 'skills', name: 'Skills.sys', type: 'file', icon: '🎯' },
+      { id: 'skills', name: 'Skills.plist', type: 'file', icon: '🎯' },
       { id: 'terminal', name: 'Terminal.app', type: 'file', icon: '⌨️' },
     ]
   },
@@ -44,7 +44,7 @@ const fileSystem: FileItem[] = [
     type: 'folder',
     icon: '📁',
     children: [
-      { id: 'about-site', name: 'About Site.txt', type: 'file', icon: 'ℹ️' },
+      { id: 'about-site', name: 'About This Site.rtf', type: 'file', icon: 'ℹ️' },
       { id: 'cover-letter', name: 'Cover Letter.txt', type: 'file', icon: '✉️' },
       { id: 'contact', name: 'Contact.txt', type: 'file', icon: '📧' },
     ]
@@ -94,7 +94,7 @@ Sitemap: https://yourdomain.com/sitemap.xml`}
       },
       {
         id: 'manifest',
-        name: 'manifest.json',
+        name: 'manifest.plist',
         type: 'file',
         icon: '📄',
         content: (
@@ -127,7 +127,7 @@ Sitemap: https://yourdomain.com/sitemap.xml`}
       },
       {
         id: 'env',
-        name: '.env',
+        name: 'environment.plist',
         type: 'file',
         icon: '🔒',
         content: (

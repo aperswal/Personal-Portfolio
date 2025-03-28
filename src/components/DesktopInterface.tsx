@@ -180,7 +180,7 @@ const DesktopInterface = () => {
   const desktopIcons: DesktopIcon[] = [
     {
       id: 'about-site',
-      title: 'About Site.txt',
+      title: 'About This Site.rtf',
       icon: 'ℹ️',
       content: <AboutSite />
     },
@@ -198,7 +198,7 @@ const DesktopInterface = () => {
     },
     {
       id: 'about-me',
-      title: 'AboutMe.exe',
+      title: 'AboutMe.app',
       icon: '👤',
       content: <About />
     },
@@ -210,7 +210,7 @@ const DesktopInterface = () => {
     },
     {
       id: 'skills',
-      title: 'Skills.sys',
+      title: 'Skills.plist',
       icon: '🎯',
       content: <Skills />
     },
@@ -280,7 +280,7 @@ const DesktopInterface = () => {
     // Frequently Used
     { id: 'finder', icon: '📁', title: 'Finder' },
     { id: 'terminal', icon: '⌨️', title: 'Terminal.app' },
-    { id: 'about-me', icon: '👤', title: 'AboutMe.exe' },
+    { id: 'about-me', icon: '👤', title: 'AboutMe.app' },
     { id: 'education', icon: '🎓', title: 'Education.app' },
     { id: 'work-history', icon: '💼', title: 'Work History.app' },
     { id: 'cover-letter', icon: '✉️', title: 'Cover Letter.txt' },
@@ -299,7 +299,7 @@ const DesktopInterface = () => {
     
     // Content & Communication
     { id: 'projects', icon: '💻', title: 'Projects.app' },
-    { id: 'skills', icon: '🎯', title: 'Skills.sys' },
+    { id: 'skills', icon: '🎯', title: 'Skills.plist' },
     { id: 'contact', icon: '📧', title: 'Contact.txt' },
     
     // Separator

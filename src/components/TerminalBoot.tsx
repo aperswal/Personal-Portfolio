@@ -11,19 +11,15 @@ export interface TerminalBootProps {
 }
 
 const bootSequence: BootMessage[] = [
-  { text: "System initialization started...", delay: 500 },
-  { text: "Loading BIOS...", delay: 600 },
-  { text: "Checking hardware components...", delay: 700 },
-  { text: "CPU: Notion Powered Brain Processor", delay: 400 },
-  { text: "Memory: Loading Anki's Creative RAM", delay: 400 },
-  { text: "Loading personality modules... HIMYM jokes... Shark Tank memes... caffeine addiciton...", delay: 800 },
-  { text: "Installing startup.dll...", delay: 600 },
-  { text: "Importing development_skills.exe...", delay: 700 },
-  { text: "Failed import of development_skills.exe...", delay: 300 },
-  { text: "Importing backup ChatGPT.exe and Stackoverflow.exe...", delay: 300 },
-  { text: "Mounting portfolio drive...", delay: 500 },
-  { text: "Boot sequence complete.", delay: 1000 },
-  { text: "Type 'run adi.exe' to launch interface...", delay: 500 },
+  { text: "Initializing system...", delay: 1000 },
+  { text: "Loading personal data...", delay: 500 },
+  { text: "Checking dependencies...", delay: 300 },
+  { text: "Importing development_skills.app...", delay: 700 },
+  { text: "Failed import of development_skills.app...", delay: 300 },
+  { text: "Importing backup ChatGPT.app and Stackoverflow.app...", delay: 300 },
+  { text: "Dependencies loaded successfully!", delay: 500 },
+  { text: "System ready!", delay: 300 },
+  { text: "Type 'run adi.app' to launch interface...", delay: 500 },
 ];
 
 export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
@@ -114,7 +110,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
       }
       setUserInput('');
 
-      if (command === 'run adi.exe') {
+      if (command === 'run adi.app') {
         console.log('Launching desktop interface');
         setMessages(prev => [...prev, 'Launching ADI interface...']);
         setTimeout(onBootComplete, 1000);
@@ -122,7 +118,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
         console.log('Showing help menu');
         setMessages(prev => [...prev, 
           'Available commands:', 
-          '  - run adi.exe: Launch the ADI interface', 
+          '  - run adi.app: Launch the ADI interface', 
           '  - help: Show this help message',
           '  - clear: Clear the terminal',
           '  - about: Show system information'
@@ -138,7 +134,7 @@ export default function TerminalBoot({ onBootComplete }: TerminalBootProps) {
           '=== ADI System v1.0.0 ===',
           'A personal portfolio interface',
           'Created with Next.js & TypeScript',
-          'Type "run adi.exe" to start'
+          'Type "run adi.app" to start'
         ]);
       } else if (command) {
         console.log('Command not recognized:', command);
