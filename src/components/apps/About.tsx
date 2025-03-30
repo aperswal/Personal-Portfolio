@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { User, Target, Code } from 'lucide-react';
+import { SpriteAnimation } from './SpriteAnimation';
 
 export function About() {
   return (
@@ -22,17 +23,24 @@ export function About() {
           </p>
         </div>
 
-        {/* Introduction Section */}
-        <div className="bg-white/5 rounded-xl p-6 backdrop-blur-sm border border-white/10">
-          <div className="flex items-center gap-3 mb-4">
-            <User className="text-blue-400" size={24} />
-            <h2 className="text-xl font-semibold text-blue-400">About Me</h2>
+        {/* Introduction Section with Animation */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="bg-white/5 rounded-xl p-6 backdrop-blur-sm border border-white/10 flex-1">
+            <div className="flex items-center gap-3 mb-4">
+              <User className="text-blue-400" size={24} />
+              <h2 className="text-xl font-semibold text-blue-400">About Me</h2>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              I solve complex problems with simple solutions. I build fast, scalable systems 
+              that users actually need. Right now, I'm focused on learning and growing as 
+              much as possible.
+            </p>
           </div>
-          <p className="text-gray-300 leading-relaxed">
-            I solve complex problems with simple solutions. I build fast, scalable systems 
-            that users actually need. Right now, I'm focused on learning and growing as 
-            much as possible.
-          </p>
+
+          {/* Sprite Animation */}
+          <div className="bg-white/5 rounded-xl p-6 backdrop-blur-sm border border-white/10">
+            <SpriteAnimation />
+          </div>
         </div>
 
         {/* Goals Section */}
