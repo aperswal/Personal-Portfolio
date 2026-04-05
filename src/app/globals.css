@@ -1,0 +1,55 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap");
+@import "tailwindcss";
+
+@theme inline {
+  --color-obsidian: #1A1A1A;
+  --color-charcoal: #2C2C2C;
+  --color-iron: #3D3D3D;
+  --color-deep-brown: #3E2A1A;
+  --color-slate: #4A5568;
+
+  --color-gold: #D4A843;
+  --color-amber: #C4930A;
+  --color-pale-gold: #E8D5A3;
+  --color-cream: #F5F0E6;
+  --color-warm-gray: #6B6158;
+
+  --color-racing-green: #1B6B3A;
+  --color-forest: #2D4A2E;
+  --color-copper: #B87333;
+  --color-leather: #8B6914;
+
+  --color-parchment: #FAF7F0;
+
+  --color-success: #3A6B3A;
+  --color-error: #9B4444;
+  --color-warning: #B87333;
+  --color-info: #4A6B8A;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 100px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+body {
+  background: var(--color-parchment);
+  color: var(--color-deep-brown);
+  font-family: var(--font-body);
+  font-weight: 300;
+}
+
+::selection {
+  background: rgba(160, 122, 32, 0.3);
+  color: var(--color-obsidian);
+}
