@@ -25,21 +25,21 @@ export const metadata: Metadata = {
     template: "%s | Adi Perswal",
   },
   description:
-    "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
+    "Software engineer at Amazon. I like learning, building, and selling. This is my personal portfolio.",
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "Adi Perswal",
     title: "Adi Perswal — Software Engineer",
     description:
-      "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
+      "Software engineer at Amazon. I like learning, building, and selling. This is my personal portfolio.",
     images: [{ url: "/wallpaper.png", width: 1536, height: 1024 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Adi Perswal — Software Engineer",
     description:
-      "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
+      "Software engineer at Amazon. I like learning, building, and selling. This is my personal portfolio.",
     images: ["/wallpaper.png"],
   },
   robots: {
