@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "portfolio": {
+      "url": "https://adiperswal.com/api/mcp",
+      "name": "Adi Perswal Portfolio",
+      "description": "Query structured portfolio data: experience, projects, books, media, and more.",
+      "transport": "streamable-http"
+    }
+  }
+}

@@ -1,30 +1,33 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap");
 @import "tailwindcss";
 
 @theme inline {
-  --color-obsidian: #1A1A1A;
-  --color-charcoal: #2C2C2C;
-  --color-iron: #3D3D3D;
-  --color-deep-brown: #3E2A1A;
-  --color-slate: #4A5568;
+  --color-obsidian: #1a1a1a;
+  --color-charcoal: #2c2c2c;
+  --color-iron: #3d3d3d;
+  --color-deep-brown: #3e2a1a;
+  --color-slate: #4a5568;
 
-  --color-gold: #D4A843;
-  --color-amber: #C4930A;
-  --color-pale-gold: #E8D5A3;
-  --color-cream: #F5F0E6;
-  --color-warm-gray: #6B6158;
+  --color-gold: #d4a843;
+  --color-amber: #c4930a;
+  --color-pale-gold: #e8d5a3;
+  --color-cream: #f5f0e6;
+  --color-warm-gray: #6b6158;
 
-  --color-racing-green: #1B6B3A;
-  --color-forest: #2D4A2E;
-  --color-copper: #B87333;
-  --color-leather: #8B6914;
+  --color-racing-green: #1b6b3a;
+  --color-forest: #2d4a2e;
+  --color-copper: #b87333;
+  --color-leather: #8b6914;
 
-  --color-parchment: #FAF7F0;
+  --color-parchment: #faf7f0;
 
-  --color-success: #3A6B3A;
-  --color-error: #9B4444;
-  --color-warning: #B87333;
-  --color-info: #4A6B8A;
+  --color-success: #3a6b3a;
+  --color-error: #9b4444;
+  --color-warning: #b87333;
+  --color-info: #4a6b8a;
+
+  --color-traffic-close: #5c1a1a;
+  --color-traffic-minimize: #5c3a0a;
+  --color-traffic-maximize: #1a3d1a;
 
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "DM Sans", system-ui, sans-serif;
