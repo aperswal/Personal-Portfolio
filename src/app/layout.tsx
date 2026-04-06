@@ -33,12 +33,14 @@ export const metadata: Metadata = {
     title: "Adi Perswal — Software Engineer",
     description:
       "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
+    images: [{ url: "/wallpaper.png", width: 1536, height: 1024 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Adi Perswal — Software Engineer",
     description:
       "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
+    images: ["/wallpaper.png"],
   },
   robots: {
     index: true,
