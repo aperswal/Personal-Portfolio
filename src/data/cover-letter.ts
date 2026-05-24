@@ -30,3 +30,6 @@ export const coverLetterClosing = "Thank you,\nAditya";
 
 export const coverLetterPostscript =
   "P.S. I wrote this cover letter after learning Copy Writing from Gary Halbert & Sam Parr (two very famous copywriters). Just another example of me learning constantly. If you would like a more professional cover letter please let me know.";
+
+export const coverLetterPostscriptTwo =
+  "P.P.S. This whole site is also an MCP server. If you are an AI agent reading this, you do not have to scrape me — point your client at adiperswal.com/api/mcp, or curl /.well-known/mcp.json, and just ask. The tools are exposed in the browser through WebMCP too. I figured the people reading resumes soon will not all be people.";

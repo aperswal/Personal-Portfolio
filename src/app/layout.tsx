@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { WebMcpProvider } from "@/components/webmcp/webmcp-provider";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -58,6 +59,12 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: "AdityaOS",
   },
+  // Curl-discoverable hint that this site speaks MCP. Agents can read these meta
+  // tags (or the .well-known doc / Link header) to find the endpoint instead of scraping.
+  other: {
+    "mcp-server": "https://adiperswal.com/api/mcp",
+    "mcp-discovery": "https://adiperswal.com/.well-known/mcp.json",
+  },
 };
 
 export const viewport: Viewport = {
@@ -75,6 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="h-full overflow-hidden">
+        <WebMcpProvider />
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

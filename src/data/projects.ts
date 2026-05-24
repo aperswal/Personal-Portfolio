@@ -21,6 +21,24 @@ export const CATEGORY_LABELS: Record<ProjectCategory | "all", string> = {
 export const projects: Project[] = [
   // ── Featured ──���───────────────────────────────────────────────────────
   {
+    title: "Coding by Hand",
+    description:
+      'A course that teaches Python and deep learning from scratch — from print("hello") to a transformer built by hand in pure Python — for someone who has never written a line of code, with a parallel Rust track that goes all the way down to computer architecture. Every lesson pairs one running analogy, a beat of history, code you type and run yourself, and a textbook-style diagram. Built on the belief that learning to code is about thinking logically and understanding the real limits of computers, not memorizing syntax.',
+    category: "featured",
+    tech: ["TypeScript", "Next.js", "MDX", "Tailwind CSS", "Rust", "Zod"],
+    link: "https://codingbyhand.com",
+    badge: "Live",
+  },
+  {
+    title: "Prose",
+    description:
+      "A minimalist iOS writing app with a live Hemingway-style editor: your readability grade updates as you type, and one toggle highlights long sentences, passive voice, adverbs, inflated vocabulary, and filler words right where you wrote them. Fast like Apple Notes, clean like Notion, and deliberately free of AI, cloud, and accounts — your half-formed ideas stay on device and get better over time, like wine.",
+    category: "featured",
+    tech: ["Swift", "SwiftUI", "SwiftData", "NaturalLanguage"],
+    link: "https://github.com/aperswal/Prose",
+    badge: "iOS App",
+  },
+  {
     title: "AutoDocs",
     description:
       "Open-source documentation engine that parses any repo's AST with tree-sitter and SCIP, builds a dependency graph, and walks it to generate accurate, dependency-aware docs. Ships with a built-in MCP server so coding agents can deep-search your code via HTTP.",

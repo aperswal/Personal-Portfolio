@@ -2,6 +2,7 @@ import {
   coverLetterParagraphs,
   coverLetterClosing,
   coverLetterPostscript,
+  coverLetterPostscriptTwo,
 } from "@/data/cover-letter";
 
 export function CoverLetterContent() {
@@ -16,6 +17,8 @@ export function CoverLetterContent() {
       <p className="mt-xl whitespace-pre-line">{coverLetterClosing}</p>
 
       <p className="mt-xl text-sm italic text-warm-gray">{coverLetterPostscript}</p>
+
+      <p className="mt-lg text-sm italic text-warm-gray">{coverLetterPostscriptTwo}</p>
     </article>
   );
 }
