@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WebMcpProvider } from "@/components/webmcp/webmcp-provider";
 import "./globals.css";
@@ -84,6 +85,7 @@ export default function RootLayout({
       <body className="h-full overflow-hidden">
         <WebMcpProvider />
         <TooltipProvider>{children}</TooltipProvider>
+        <Analytics />
       </body>
     </html>
   );
