@@ -39,6 +39,22 @@ export const projects: Project[] = [
     badge: "iOS App",
   },
   {
+    title: "PhD for Dummies",
+    description:
+      "Famous AI/ML/RL papers explained in layers, each with diagrams and a live simulation you can reach in and break. I built it because I wanted to keep up with the field but had never learned to read a paper — I'd hit a wall of symbols on page one and close it. Every paper climbs from a version a five-year-old could follow up to the one a peer researcher would argue with, and the demo runs the paper's real rules, so you learn the mechanism by poking it rather than watching a cartoon of it. Under the hood a chain of Claude skills does the work — thinking, writing the layers, building and reviewing the simulations, writing tests, generating diagrams, converting them to WebP and pushing them to blob storage — so a paper goes from PDF to something I actually understand before I write a line of implementation.",
+    category: "featured",
+    tech: [
+      "TypeScript",
+      "Next.js",
+      "MDX",
+      "Tailwind CSS",
+      "Claude Skills",
+      "Vercel Blob",
+    ],
+    link: "https://phdfordummies.com",
+    badge: "Live",
+  },
+  {
     title: "AutoDocs",
     description:
       "Open-source documentation engine that parses any repo's AST with tree-sitter and SCIP, builds a dependency graph, and walks it to generate accurate, dependency-aware docs. Ships with a built-in MCP server so coding agents can deep-search your code via HTTP.",
