@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import { WindowManagerProvider } from "./window-manager";
 import { useWindowStore } from "./window-store";
 import { DesktopWindow } from "./window";
 import { DesktopIcons } from "./desktop-icons";
 import { Dock } from "./dock";
-import { OrientationNotice } from "./orientation-notice";
+import { DesktopAppNavigationProvider } from "@/components/shell/app-navigation";
 import type { AppDefinition } from "./types";
 
 interface DesktopProps {
@@ -36,6 +42,19 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
   const appsById = useMemo(() => new Map(apps.map((a) => [a.id, a])), [apps]);
   const validIds = useMemo(() => apps.map((a) => a.id), [apps]);
 
+  // Desktop icon selection is ephemeral UI state — never persisted to the store.
+  const [selectedIconId, setSelectedIconId] = useState<string | null>(null);
+
+  // Deselect only when the bare surface is hit; window/dock/icon pointerdowns
+  // (which originate on descendant elements) must not clear the selection.
+  const handleBackgroundPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) setSelectedIconId(null);
+  };
+
+  const handleSurfaceKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape") setSelectedIconId(null);
+  };
+
   // Run the one-shot restore (prune + clamp + welcome) once persisted state is
   // read back and the viewport is measured. `restored` is store-owned, so the
   // windows layer below stays gated on it: server and first client render both
@@ -56,9 +75,17 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
   ]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-parchment bg-[url('/wallpaper.png')] bg-cover bg-center bg-no-repeat">
+    <div
+      className="relative h-full w-full overflow-hidden bg-parchment bg-[url('/wallpaper.png')] bg-cover bg-center bg-no-repeat"
+      onPointerDown={handleBackgroundPointerDown}
+      onKeyDown={handleSurfaceKeyDown}
+    >
       {/* Desktop icons grid — right side */}
-      <DesktopIcons apps={apps} />
+      <DesktopIcons
+        apps={apps}
+        selectedIconId={selectedIconId}
+        onSelect={setSelectedIconId}
+      />
 
       {/* Windows layer — only once persisted state is restored + clamped */}
       {restored &&
@@ -70,9 +97,6 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
 
       {/* Dock — hidden when a window is maximized */}
       {!hasMaximized && <Dock apps={apps} />}
-
-      {/* Orientation notice for small portrait screens */}
-      <OrientationNotice />
     </div>
   );
 }
@@ -80,7 +104,9 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
 export function Desktop({ apps, initialAppId }: DesktopProps) {
   return (
     <WindowManagerProvider>
-      <DesktopSurface apps={apps} initialAppId={initialAppId} />
+      <DesktopAppNavigationProvider>
+        <DesktopSurface apps={apps} initialAppId={initialAppId} />
+      </DesktopAppNavigationProvider>
     </WindowManagerProvider>
   );
 }

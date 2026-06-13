@@ -1,4 +1,4 @@
-import { Desktop } from "@/components/desktop/desktop";
+import { RootShell } from "@/components/shell/root-shell";
 import { JsonLd } from "@/components/shared/json-ld";
 import { siteConfig, socialLinks } from "@/data/personal";
 import { APP_IDS, buildApp } from "@/data/apps";
@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <>
       <JsonLd data={personSchema} />
-      <Desktop apps={apps} initialAppId={APP_IDS.COVER_LETTER} />
+      <RootShell apps={apps} initialAppId={APP_IDS.COVER_LETTER} />
     </>
   );
 }

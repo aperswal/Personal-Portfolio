@@ -1,8 +1,16 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo, type PointerEvent } from "react";
+import {
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  type PointerEvent,
+  type KeyboardEvent,
+} from "react";
 import { useWindowManager } from "./window-manager";
 import { useViewportSize } from "@/lib/use-viewport-size";
+import { decideIconClick, type IconClick } from "@/lib/icon-click-decision";
 import type { AppDefinition } from "./types";
 import { cn, ICON_CONTAINER_BASE } from "@/lib/utils";
 
@@ -44,11 +52,62 @@ function getDefaultPositions(
   return map;
 }
 
-interface DesktopIconsProps {
-  apps: AppDefinition[];
+const slotKey = (col: number, row: number) => `${col},${row}`;
+
+/**
+ * Recompute positions when the grid geometry changes (viewport resize/rotation)
+ * WITHOUT discarding the user's manual arrangement: icons the user has dragged
+ * keep their slot (re-clamped into the new bounds, bumped on collision), and
+ * only the untouched icons re-flow into the remaining slots. Without this, a
+ * vertical resize that changes maxRows would silently reset every icon.
+ */
+function reflowPositions(
+  prev: Map<string, IconPosition>,
+  apps: AppDefinition[],
+  maxRows: number,
+  moved: Set<string>,
+): Map<string, IconPosition> {
+  const gridCols = Math.max(1, Math.ceil(apps.length / maxRows));
+  const next = new Map<string, IconPosition>();
+  const occupied = new Set<string>();
+
+  const claim = (col: number, row: number) => {
+    let c = Math.min(Math.max(0, col), gridCols - 1);
+    let r = Math.min(Math.max(0, row), maxRows - 1);
+    while (occupied.has(slotKey(c, r))) {
+      r += 1;
+      if (r >= maxRows) {
+        r = 0;
+        c += 1;
+      }
+    }
+    occupied.add(slotKey(c, r));
+    return { col: c, row: r };
+  };
+
+  // 1. Preserve user-moved icons at their (clamped) slots.
+  for (const app of apps) {
+    const pos = prev.get(app.id);
+    if (moved.has(app.id) && pos) next.set(app.id, claim(pos.col, pos.row));
+  }
+  // 2. Flow the rest into the next free default (column-major) slots.
+  let slot = 0;
+  for (const app of apps) {
+    if (next.has(app.id)) continue;
+    const placed = claim(Math.floor(slot / maxRows), slot % maxRows);
+    next.set(app.id, placed);
+    slot += 1;
+  }
+  return next;
 }
 
-export function DesktopIcons({ apps }: DesktopIconsProps) {
+interface DesktopIconsProps {
+  apps: AppDefinition[];
+  selectedIconId: string | null;
+  onSelect: (id: string | null) => void;
+}
+
+export function DesktopIcons({ apps, selectedIconId, onSelect }: DesktopIconsProps) {
   const visibleApps = useMemo(() => apps.filter((a) => !a.hidden), [apps]);
   const { openWindow } = useWindowManager();
   const { height: vh } = useViewportSize();
@@ -60,11 +119,17 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
     getDefaultPositions(visibleApps, maxRows),
   );
 
-  // Recalculate positions when maxRows changes (viewport resize/rotation)
+  // Ids of icons the user has dragged; their arrangement is preserved across
+  // viewport-driven reflows rather than reset to the default layout. Held in
+  // state (not a ref) so it can be read by the render-phase reflow below.
+  const [userMoved, setUserMoved] = useState<Set<string>>(() => new Set());
+
+  // Reflow positions when maxRows changes (viewport resize/rotation),
+  // keeping any manually-arranged icons in place.
   const [prevMaxRows, setPrevMaxRows] = useState(maxRows);
   if (prevMaxRows !== maxRows) {
     setPrevMaxRows(maxRows);
-    setPositions(getDefaultPositions(visibleApps, maxRows));
+    setPositions((prev) => reflowPositions(prev, visibleApps, maxRows, userMoved));
   }
 
   const dragRef = useRef<{
@@ -79,11 +144,22 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
     lastDy: number;
   } | null>(null);
 
+  const lastClickRef = useRef<IconClick | null>(null);
+
   const [dragOffset, setDragOffset] = useState<{
     appId: string;
     dx: number;
     dy: number;
   } | null>(null);
+
+  const openApp = useCallback(
+    (app: AppDefinition) => {
+      openWindow(app.id, app.defaultSize);
+      lastClickRef.current = null;
+      onSelect(null);
+    },
+    [openWindow, onSelect],
+  );
 
   const handlePointerDown = useCallback(
     (appId: string, e: PointerEvent<HTMLButtonElement>) => {
@@ -128,6 +204,7 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
       if (ref.hasMoved && ref.appId === appId) {
         const pos = positions.get(appId);
         if (pos) {
+          setUserMoved((prev) => new Set(prev).add(appId));
           const pixelX = pos.col * cellW - ref.lastDx;
           const pixelY = pos.row * cellH + ref.lastDy;
           const newCol = Math.min(Math.max(0, Math.round(pixelX / cellW)), gridCols - 1);
@@ -148,12 +225,33 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
         setDragOffset(null);
       } else {
         const app = visibleApps.find((a) => a.id === appId);
-        if (app) openWindow(app.id, app.defaultSize);
+        if (app) {
+          const current: IconClick = { id: app.id, time: performance.now() };
+          if (decideIconClick(lastClickRef.current, current) === "open") {
+            openApp(app);
+          } else {
+            onSelect(app.id);
+            lastClickRef.current = current;
+          }
+        }
       }
 
       dragRef.current = null;
     },
-    [positions, visibleApps, openWindow, cellW, cellH, gridCols, maxRows],
+    [positions, visibleApps, openApp, onSelect, cellW, cellH, gridCols, maxRows],
+  );
+
+  const handleKeyDown = useCallback(
+    (app: AppDefinition, e: KeyboardEvent<HTMLButtonElement>) => {
+      // A native <button> activates on both Enter and Space; honor that
+      // contract (WCAG 2.1.1). preventDefault on Space also suppresses the
+      // page scroll and the native keyup-synthesized click.
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openApp(app);
+      }
+    },
+    [openApp],
   );
 
   return (
@@ -163,13 +261,15 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
         if (!pos) return null;
 
         const isDragging = dragOffset?.appId === app.id;
+        const isSelected = selectedIconId === app.id;
 
         return (
           <button
             key={app.id}
             className={cn(
               "pointer-events-auto absolute flex flex-col items-center gap-1 rounded-lg p-2 transition-shadow",
-              "hover:bg-deep-brown/5",
+              isSelected ? "bg-white/20 ring-1 ring-white/40" : "hover:bg-deep-brown/5",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
               isDragging && "z-50 opacity-80 shadow-lg",
             )}
             style={{
@@ -184,7 +284,9 @@ export function DesktopIcons({ apps }: DesktopIconsProps) {
             onPointerDown={(e) => handlePointerDown(app.id, e)}
             onPointerMove={handlePointerMove}
             onPointerUp={() => handlePointerUp(app.id)}
-            aria-label={`Open ${app.title}`}
+            onKeyDown={(e) => handleKeyDown(app, e)}
+            aria-pressed={isSelected}
+            aria-label={app.title}
           >
             <span
               className={cn(

@@ -26,8 +26,8 @@ test.describe("Window Management", () => {
   }) => {
     await page.click('[aria-label="Open Projects"]');
     await page.click('[aria-label="Open Projects"]');
-    // Count windows with "Projects" in aria-label
-    const projectWindows = page.locator('[aria-label="Projects"]');
+    // Count Projects windows (the dialog, not the always-present desktop icon)
+    const projectWindows = page.locator('[role="dialog"][aria-label="Projects"]');
     await expect(projectWindows).toHaveCount(1);
   });
 
@@ -37,8 +37,8 @@ test.describe("Window Management", () => {
     // Open a second window
     await page.click('[aria-label="Open Projects"]');
 
-    const letterWindow = page.locator('[aria-label="A Letter"]');
-    const projectsWindow = page.locator('[aria-label="Projects"]');
+    const letterWindow = page.locator('[role="dialog"][aria-label="A Letter"]');
+    const projectsWindow = page.locator('[role="dialog"][aria-label="Projects"]');
 
     // Projects was opened last — should be on top
     const projectsZ = await projectsWindow.evaluate(
@@ -63,7 +63,7 @@ test.describe("Window Management", () => {
   });
 
   test("red button closes the window", async ({ page }) => {
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     await expect(dialog).toBeVisible();
 
     await page.click('[aria-label="Close A Letter"]');
@@ -71,7 +71,7 @@ test.describe("Window Management", () => {
   });
 
   test("yellow button minimizes the window (disappears from view)", async ({ page }) => {
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     await expect(dialog).toBeVisible();
 
     await page.click('[aria-label="Minimize A Letter"]');
@@ -80,7 +80,7 @@ test.describe("Window Management", () => {
 
   test("minimized window appears in dock tray and can be restored", async ({ page }) => {
     await page.click('[aria-label="Minimize A Letter"]');
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     await expect(dialog).not.toBeVisible();
 
     // Minimized window should show in the dock tray
@@ -96,7 +96,7 @@ test.describe("Window Management", () => {
     page,
   }) => {
     await page.click('[aria-label="Maximize A Letter"]');
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
 
     // Window should cover the full viewport
     const box = await dialog.boundingBox();
@@ -118,7 +118,7 @@ test.describe("Window Management", () => {
   test("clicking green on maximized window restores to original size", async ({
     page,
   }) => {
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     const boxBefore = await dialog.boundingBox();
 
     await page.click('[aria-label="Maximize A Letter"]');
@@ -133,7 +133,7 @@ test.describe("Window Management", () => {
 
   test("minimize works directly from maximized state", async ({ page }) => {
     await page.click('[aria-label="Maximize A Letter"]');
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     await expect(dialog).toBeVisible();
 
     await page.click('[aria-label="Minimize A Letter"]');
@@ -145,7 +145,7 @@ test.describe("Window Management", () => {
   });
 
   test("window can be resized by dragging the south-east corner", async ({ page }) => {
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     const boxBefore = await dialog.boundingBox();
 
     // Drag the bottom-right corner 100px right and 50px down
@@ -163,7 +163,7 @@ test.describe("Window Management", () => {
   });
 
   test("window cannot be resized below minimum size", async ({ page }) => {
-    const dialog = page.locator('[aria-label="A Letter"]');
+    const dialog = page.locator('[role="dialog"][aria-label="A Letter"]');
     const boxBefore = await dialog.boundingBox();
 
     // Try to shrink from bottom-right corner by a lot

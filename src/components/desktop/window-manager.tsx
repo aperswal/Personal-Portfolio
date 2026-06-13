@@ -6,7 +6,7 @@ import type { DesktopState } from "./window-reducer";
 import { useWindowStore, flushWindowStorage } from "./window-store";
 import { useViewportSize } from "@/lib/use-viewport-size";
 
-interface WindowManagerApi {
+export interface WindowManagerApi {
   state: Pick<DesktopState, "windows" | "windowOrder">;
   openWindow: (id: string, defaultSize?: WindowSize) => void;
   closeWindow: (id: string) => void;

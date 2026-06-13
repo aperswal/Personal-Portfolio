@@ -7,12 +7,12 @@ async function freshLoad(page: Page) {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.waitForSelector('[aria-label="A Letter"]');
+  await page.waitForSelector('[role="dialog"][aria-label="A Letter"]');
 }
 
 function zIndexOf(page: Page, label: string) {
   return page
-    .locator(`[aria-label="${label}"]`)
+    .locator(`[role="dialog"][aria-label="${label}"]`)
     .evaluate((el) => parseInt(getComputedStyle(el).zIndex) || 0);
 }
 
@@ -26,7 +26,7 @@ test.describe("Window persistence across reload", () => {
   }) => {
     // Open Projects as a second window (now topmost).
     await page.click('[aria-label="Open Projects"]');
-    const projects = page.locator('[aria-label="Projects"]');
+    const projects = page.locator('[role="dialog"][aria-label="Projects"]');
     await expect(projects).toBeVisible();
 
     // Drag it by the title bar to a known offset.
@@ -41,14 +41,16 @@ test.describe("Window persistence across reload", () => {
 
     await page.waitForTimeout(PERSIST_WAIT);
     await page.reload();
-    await page.waitForSelector('[aria-label="Projects"]');
+    await page.waitForSelector('[role="dialog"][aria-label="Projects"]');
 
     // Both windows came back.
-    await expect(page.locator('[aria-label="A Letter"]')).toBeVisible();
-    await expect(page.locator('[aria-label="Projects"]')).toBeVisible();
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toBeVisible();
+    await expect(page.locator('[role="dialog"][aria-label="Projects"]')).toBeVisible();
 
     // Position preserved.
-    const after = (await page.locator('[aria-label="Projects"]').boundingBox())!;
+    const after = (await page
+      .locator('[role="dialog"][aria-label="Projects"]')
+      .boundingBox())!;
     expect(Math.abs(after.x - before.x)).toBeLessThan(4);
     expect(Math.abs(after.y - before.y)).toBeLessThan(4);
 
@@ -60,27 +62,27 @@ test.describe("Window persistence across reload", () => {
 
   test("closing every window reopens the cover letter after reload", async ({ page }) => {
     await page.click('[aria-label="Close A Letter"]');
-    await expect(page.locator('[aria-label="A Letter"]')).toHaveCount(0);
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toHaveCount(0);
 
     await page.waitForTimeout(PERSIST_WAIT);
     await page.reload();
 
     // Product decision: an empty desktop re-welcomes with the cover letter.
-    await expect(page.locator('[aria-label="A Letter"]')).toBeVisible();
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toBeVisible();
   });
 
   test("a minimized window returns to the dock tray, not as a dialog", async ({
     page,
   }) => {
     await page.click('[aria-label="Minimize A Letter"]');
-    await expect(page.locator('[aria-label="A Letter"]')).toHaveCount(0);
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toHaveCount(0);
 
     await page.waitForTimeout(PERSIST_WAIT);
     await page.reload();
 
     // Minimized flag survived: dialog hidden, restore button present, no re-welcome.
     await expect(page.locator('[aria-label="Restore A Letter"]')).toBeVisible();
-    await expect(page.locator('[aria-label="A Letter"]')).toHaveCount(0);
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toHaveCount(0);
   });
 
   test("a maximized window restores as a normal window with the dock visible", async ({
@@ -91,11 +93,13 @@ test.describe("Window persistence across reload", () => {
 
     await page.waitForTimeout(PERSIST_WAIT);
     await page.reload();
-    await page.waitForSelector('[aria-label="A Letter"]');
+    await page.waitForSelector('[role="dialog"][aria-label="A Letter"]');
 
     // Restored un-maximized: dock visible, window no longer fills the viewport.
     await expect(page.locator('[aria-label="Application dock"]')).toBeVisible();
-    const box = (await page.locator('[aria-label="A Letter"]').boundingBox())!;
+    const box = (await page
+      .locator('[role="dialog"][aria-label="A Letter"]')
+      .boundingBox())!;
     const vp = page.viewportSize()!;
     expect(box.width).toBeLessThan(vp.width);
   });
@@ -111,9 +115,9 @@ test.describe("Window persistence across reload", () => {
     await page.goto("/");
     await page.evaluate(() => localStorage.clear());
     await page.reload();
-    await page.waitForSelector('[aria-label="A Letter"]');
+    await page.waitForSelector('[role="dialog"][aria-label="A Letter"]');
 
-    await expect(page.locator('[aria-label="A Letter"]')).toBeVisible();
+    await expect(page.locator('[role="dialog"][aria-label="A Letter"]')).toBeVisible();
     const hydrationErrors = errors.filter((e) =>
       /hydrat|did not match|server.*client|text content does not match/i.test(e),
     );
@@ -124,7 +128,7 @@ test.describe("Window persistence across reload", () => {
     page,
   }) => {
     await page.click('[aria-label="Open Projects"]');
-    const projects = page.locator('[aria-label="Projects"]');
+    const projects = page.locator('[role="dialog"][aria-label="Projects"]');
     const header = projects.locator("header");
     const hb = (await header.boundingBox())!;
     await page.mouse.move(hb.x + 50, hb.y + 5);
@@ -140,9 +144,11 @@ test.describe("Window persistence across reload", () => {
       window.dispatchEvent(new Event("pagehide"));
     });
     await page.reload();
-    await page.waitForSelector('[aria-label="Projects"]');
+    await page.waitForSelector('[role="dialog"][aria-label="Projects"]');
 
-    const after = (await page.locator('[aria-label="Projects"]').boundingBox())!;
+    const after = (await page
+      .locator('[role="dialog"][aria-label="Projects"]')
+      .boundingBox())!;
     expect(Math.abs(after.x - before.x)).toBeLessThan(4);
     expect(Math.abs(after.y - before.y)).toBeLessThan(4);
   });

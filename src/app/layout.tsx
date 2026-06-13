@@ -35,14 +35,22 @@ export const metadata: Metadata = {
     title: "Adi Perswal — Software Engineer",
     description:
       "Software engineer at Amazon. I like learning, building, and selling. This is my personal portfolio.",
-    images: [{ url: "/wallpaper.png", width: 1536, height: 1024 }],
+    images: [
+      {
+        url: "https://iii0suzaoyxkiy2q.public.blob.vercel-storage.com/og/share-card.png",
+        width: 1536,
+        height: 1024,
+        type: "image/png",
+        alt: "AdityaOS — Adi Perswal’s macOS-style portfolio desktop",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Adi Perswal — Software Engineer",
     description:
       "Software engineer at Amazon. I like learning, building, and selling. This is my personal portfolio.",
-    images: ["/wallpaper.png"],
+    images: ["https://iii0suzaoyxkiy2q.public.blob.vercel-storage.com/og/share-card.png"],
   },
   robots: {
     index: true,

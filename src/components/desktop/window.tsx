@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useWindowManager } from "./window-manager";
 import { clampPositionToViewport } from "./window-reducer";
 import { useViewportSize } from "@/lib/use-viewport-size";
-import { WindowErrorBoundary } from "./error-boundary";
+import { AppContent } from "./app-content";
 import type { AppDefinition } from "./types";
 
 type ResizeEdge = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
@@ -281,7 +281,7 @@ export function DesktopWindow({ app, zIndex }: DesktopWindowProps) {
 
       {/* Window content */}
       <div className="flex-1 overflow-auto">
-        <WindowErrorBoundary appTitle={app.title}>{app.content}</WindowErrorBoundary>
+        <AppContent app={app} />
       </div>
     </div>
   );

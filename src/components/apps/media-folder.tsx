@@ -1,6 +1,6 @@
 "use client";
 
-import { useWindowManager } from "@/components/desktop/window-manager";
+import { useAppNavigation } from "@/components/shell/app-navigation";
 import { APP_IDS, appMeta } from "@/data/apps";
 
 const MEDIA_APP_IDS = [
@@ -14,7 +14,7 @@ const MEDIA_APP_IDS = [
 ] as const;
 
 export function MediaFolderContent() {
-  const { openWindow } = useWindowManager();
+  const { openApp } = useAppNavigation();
 
   return (
     <div className="h-full overflow-auto p-lg">
@@ -24,7 +24,7 @@ export function MediaFolderContent() {
           return (
             <button
               key={id}
-              onClick={() => openWindow(id, meta.defaultSize)}
+              onClick={() => openApp(id)}
               className="flex flex-col items-center gap-1.5 rounded-lg p-md transition-colors hover:bg-deep-brown/5"
             >
               <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-deep-brown/8 bg-cream/80 text-deep-brown shadow-sm">

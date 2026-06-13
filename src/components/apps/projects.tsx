@@ -66,7 +66,7 @@ export function ProjectsContent() {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="shrink-0 border-b border-deep-brown/8 bg-parchment/60 p-md">
-        <div className="flex items-center gap-sm">
+        <div className="flex flex-wrap items-center gap-sm gap-y-2">
           {FILTERS.map((f) => (
             <button
               key={f}

@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "upload:blob": "node --env-file=.env.local scripts/upload-to-blob.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
