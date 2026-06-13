@@ -21,7 +21,85 @@ export type DesktopAction =
   | { type: "RESTORE_WINDOW"; id: string }
   | { type: "BRING_TO_FRONT"; id: string }
   | { type: "UPDATE_POSITION"; id: string; position: WindowPosition }
-  | { type: "UPDATE_SIZE"; id: string; size: WindowSize; position?: WindowPosition };
+  | { type: "UPDATE_SIZE"; id: string; size: WindowSize; position?: WindowPosition }
+  | {
+      type: "RECONCILE";
+      validIds: string[];
+      viewport: { width: number; height: number };
+    };
+
+/** Horizontal px of a window that must remain reachable on-screen */
+const ON_SCREEN_MARGIN = 100;
+/** Vertical px keeping the title bar reachable from the top */
+const TITLE_BAR_MARGIN = 40;
+/** Side gap kept clear when fitting a window's width to the viewport */
+const VIEWPORT_WIDTH_MARGIN = 20;
+/** Top+bottom gap kept clear when fitting a window's height to the viewport */
+const VIEWPORT_HEIGHT_MARGIN = 60;
+
+function finite(value: number): number {
+  return Number.isFinite(value) ? value : 0;
+}
+
+function clampRange(value: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(value, hi));
+}
+
+/**
+ * Pull a window's position into the current viewport so its title bar stays
+ * reachable. Mirrors the live drag invariant in window.tsx exactly, and is a
+ * no-op when the viewport is not yet measured (0x0).
+ */
+export function clampPositionToViewport(
+  position: WindowPosition,
+  size: WindowSize,
+  viewport: { width: number; height: number },
+): WindowPosition {
+  if (viewport.width <= 0 || viewport.height <= 0) return position;
+  return {
+    x: clampRange(
+      finite(position.x),
+      -(size.width - ON_SCREEN_MARGIN),
+      viewport.width - ON_SCREEN_MARGIN,
+    ),
+    y: clampRange(finite(position.y), 0, viewport.height - TITLE_BAR_MARGIN),
+  };
+}
+
+/**
+ * Shrink a window's size to fit the viewport (never enlarges it). Floored at 1px
+ * so a freak sub-margin viewport can never yield a non-positive dimension —
+ * which would otherwise render as invalid CSS and fail the persistence schema's
+ * `size > 0` check on the next load, wiping all saved windows.
+ */
+function clampSizeToViewport(
+  size: WindowSize,
+  viewport: { width: number; height: number },
+): WindowSize {
+  if (viewport.width <= 0 || viewport.height <= 0) return size;
+  return {
+    width: Math.max(1, Math.min(size.width, viewport.width - VIEWPORT_WIDTH_MARGIN)),
+    height: Math.max(1, Math.min(size.height, viewport.height - VIEWPORT_HEIGHT_MARGIN)),
+  };
+}
+
+/**
+ * Normalize a single restored window for the current viewport: drop any
+ * maximized state (restore as a normal window), then fit size + position
+ * on-screen. Prune-only when the viewport is unknown.
+ */
+function reconcileWindow(
+  win: WindowState,
+  viewport: { width: number; height: number },
+): WindowState {
+  if (viewport.width <= 0 || viewport.height <= 0) return win;
+  const normalized: WindowState = win.isMaximized
+    ? { ...win, isMaximized: false, preMaximize: null }
+    : win;
+  const size = clampSizeToViewport(normalized.size, viewport);
+  const position = clampPositionToViewport(normalized.position, size, viewport);
+  return { ...normalized, size, position };
+}
 
 const STAGGER_BASE_X = 80;
 const STAGGER_BASE_Y = 60;
@@ -57,7 +135,12 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
       const existing = state.windows.get(action.id);
 
       if (existing) {
-        // Already open — un-minimize if needed and bring to front
+        // Already open and already focused — nothing to change (preserve refs so
+        // the store skips a redundant re-render + persist write).
+        const isTopmost = state.windowOrder[state.windowOrder.length - 1] === action.id;
+        if (!existing.isMinimized && isTopmost) return state;
+
+        // Otherwise un-minimize if needed and bring to front.
         const windows = new Map(state.windows);
         if (existing.isMinimized) {
           windows.set(action.id, { ...existing, isMinimized: false });
@@ -67,16 +150,7 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
       }
 
       const vp = action.viewport;
-      const clampedSize: WindowSize = {
-        width:
-          vp.width > 0
-            ? Math.min(action.defaultSize.width, vp.width - 20)
-            : action.defaultSize.width,
-        height:
-          vp.height > 0
-            ? Math.min(action.defaultSize.height, vp.height - 60)
-            : action.defaultSize.height,
-      };
+      const clampedSize = clampSizeToViewport(action.defaultSize, vp);
 
       const windows = new Map(state.windows);
       windows.set(action.id, {
@@ -95,6 +169,7 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
     }
 
     case "CLOSE_WINDOW": {
+      if (!state.windows.has(action.id)) return state;
       const windows = new Map(state.windows);
       windows.delete(action.id);
       return {
@@ -105,7 +180,7 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
 
     case "MINIMIZE_WINDOW": {
       const win = state.windows.get(action.id);
-      if (!win) return state;
+      if (!win || win.isMinimized) return state;
       const windows = new Map(state.windows);
       windows.set(action.id, { ...win, isMinimized: true });
       return { ...state, windows };
@@ -142,6 +217,9 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
     case "RESTORE_WINDOW": {
       const win = state.windows.get(action.id);
       if (!win) return state;
+      // Already visible and on top — no change.
+      const isTopmost = state.windowOrder[state.windowOrder.length - 1] === action.id;
+      if (!win.isMinimized && isTopmost) return state;
       const windows = new Map(state.windows);
       windows.set(action.id, { ...win, isMinimized: false });
       const order = [...state.windowOrder.filter((id) => id !== action.id), action.id];
@@ -176,6 +254,23 @@ export function desktopReducer(state: DesktopState, action: DesktopAction): Desk
         ...(action.position && { position: action.position }),
       });
       return { ...state, windows };
+    }
+
+    case "RECONCILE": {
+      const valid = new Set(action.validIds);
+
+      // Keep only ids that are registered AND present in both collections,
+      // filtering windowOrder (never rebuilding) so survivor stack order holds.
+      const windowOrder = state.windowOrder.filter(
+        (id) => valid.has(id) && state.windows.has(id),
+      );
+
+      const windows = new Map<string, WindowState>();
+      for (const id of windowOrder) {
+        windows.set(id, reconcileWindow(state.windows.get(id)!, action.viewport));
+      }
+
+      return { windows, windowOrder };
     }
 
     default: {
