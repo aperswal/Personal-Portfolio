@@ -4,6 +4,7 @@ import { useCallback, useRef, type PointerEvent } from "react";
 import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWindowManager } from "./window-manager";
+import { clampPositionToViewport } from "./window-reducer";
 import { useViewportSize } from "@/lib/use-viewport-size";
 import { WindowErrorBoundary } from "./error-boundary";
 import type { AppDefinition } from "./types";
@@ -145,19 +146,17 @@ export function DesktopWindow({ app, zIndex }: DesktopWindowProps) {
         return;
       }
 
-      // Drag — clamp so at least 100px stays on-screen horizontally, title bar stays visible vertically
-      if (dragRef.current) {
+      // Drag — clamp so at least 100px stays on-screen horizontally and the
+      // title bar stays reachable vertically (shared with reconcile-on-restore).
+      if (dragRef.current && win) {
         const dx = e.clientX - dragRef.current.startX;
         const dy = e.clientY - dragRef.current.startY;
-        let newX = dragRef.current.originX + dx;
-        let newY = dragRef.current.originY + dy;
-
-        if (vw > 0 && win) {
-          newX = Math.max(-(win.size.width - 100), Math.min(newX, vw - 100));
-          newY = Math.max(0, Math.min(newY, vh - 40));
-        }
-
-        updatePosition(app.id, { x: newX, y: newY });
+        const next = clampPositionToViewport(
+          { x: dragRef.current.originX + dx, y: dragRef.current.originY + dy },
+          win.size,
+          { width: vw, height: vh },
+        );
+        updatePosition(app.id, next);
       }
     },
     [app.id, vw, vh, MIN_WIDTH, MIN_HEIGHT, win, updatePosition, updateSize],
