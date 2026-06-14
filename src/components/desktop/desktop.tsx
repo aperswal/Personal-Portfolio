@@ -13,6 +13,7 @@ import { DesktopWindow } from "./window";
 import { DesktopIcons } from "./desktop-icons";
 import { Dock } from "./dock";
 import { DesktopAppNavigationProvider } from "@/components/shell/app-navigation";
+import { WALLPAPER_DESKTOP } from "@/data/wallpapers";
 import type { AppDefinition } from "./types";
 
 interface DesktopProps {
@@ -76,7 +77,8 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden bg-parchment bg-[url('/wallpaper.webp')] bg-cover bg-center bg-no-repeat"
+      className="relative h-full w-full overflow-hidden bg-parchment bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url('${WALLPAPER_DESKTOP}')` }}
       onPointerDown={handleBackgroundPointerDown}
       onKeyDown={handleSurfaceKeyDown}
     >

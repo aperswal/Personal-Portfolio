@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 import { useAppNavigation } from "@/components/shell/app-navigation";
 import { consumeReturnFocusAppId } from "./focus-handoff";
+import { WALLPAPER_MOBILE_LANDSCAPE, WALLPAPER_MOBILE_PORTRAIT } from "@/data/wallpapers";
 import type { AppDefinition } from "@/components/desktop/types";
 
 /**
- * iOS home screen: a grid of the non-hidden apps over the vertical wallpaper.
+ * iOS home screen: a grid of the non-hidden apps over the Blob wallpaper
+ * (portrait vs landscape swapped purely by CSS orientation variants).
  * A single tap opens the app through the navigation seam (URL-driven on mobile).
  * Hidden apps (Media sub-apps) are reachable only via deep links, never here.
  *
@@ -24,12 +26,20 @@ export function HomeGrid({ apps }: { apps: AppDefinition[] }) {
   }, []);
 
   return (
-    <div
-      className="min-h-dvh w-full bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/mobile_vertical_wallpaper.webp')" }}
-    >
+    <div className="relative min-h-dvh w-full overflow-hidden">
+      {/* Orientation-aware Blob wallpaper, swapped by pure CSS variants. */}
       <div
-        className="grid grid-cols-4 gap-x-4 gap-y-6 px-6"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 hidden bg-cover bg-center bg-no-repeat portrait:block"
+        style={{ backgroundImage: `url('${WALLPAPER_MOBILE_PORTRAIT}')` }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 hidden bg-cover bg-center bg-no-repeat landscape:block"
+        style={{ backgroundImage: `url('${WALLPAPER_MOBILE_LANDSCAPE}')` }}
+      />
+      <div
+        className="relative grid grid-cols-4 gap-x-4 gap-y-6 px-6"
         style={{
           paddingTop: "calc(env(safe-area-inset-top) + 4rem)",
           paddingBottom: "calc(env(safe-area-inset-bottom) + 2rem)",
