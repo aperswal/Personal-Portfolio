@@ -19,6 +19,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Amazonbot", allow: "/" },
       { userAgent: "Meta-ExternalAgent", allow: "/" },
     ],
-    sitemap: "https://adiperswal.com/sitemap.xml",
+    sitemap: "https://www.adityaperswal.com/sitemap.xml",
   };
 }

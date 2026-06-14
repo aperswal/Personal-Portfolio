@@ -21,7 +21,7 @@ const body = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://adiperswal.com"),
+  metadataBase: new URL("https://www.adityaperswal.com"),
   title: {
     default: "Adi Perswal — Software Engineer",
     template: "%s | Adi Perswal",
@@ -74,8 +74,8 @@ export const metadata: Metadata = {
   // Curl-discoverable hint that this site speaks MCP. Agents can read these meta
   // tags (or the .well-known doc / Link header) to find the endpoint instead of scraping.
   other: {
-    "mcp-server": "https://adiperswal.com/api/mcp",
-    "mcp-discovery": "https://adiperswal.com/.well-known/mcp.json",
+    "mcp-server": "https://www.adityaperswal.com/api/mcp",
+    "mcp-discovery": "https://www.adityaperswal.com/.well-known/mcp.json",
   },
 };
 

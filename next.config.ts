@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "Link", value: '</.well-known/mcp.json>; rel="mcp-server"' },
-          { key: "X-MCP-Server", value: "https://adiperswal.com/api/mcp" },
+          { key: "X-MCP-Server", value: "https://www.adityaperswal.com/api/mcp" },
         ],
       },
     ];

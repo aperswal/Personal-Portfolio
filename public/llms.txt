@@ -24,11 +24,11 @@ Adi Perswal is a Software Engineer at Amazon in Seattle, WA, and a UIUC Computer
 - Quick Transcriber — Real-time, fully local speech-to-text that types at the cursor with no internet required. https://github.com/aperswal/quick-transcriber
 
 ## Links
-- Site: https://adiperswal.com
+- Site: https://www.adityaperswal.com
 - GitHub: https://github.com/aperswal
 - LinkedIn: https://linkedin.com/in/aditya-perswal
 - Email: adityaperswal@gmail.com
 
 ## MCP
-- This site speaks MCP at https://adiperswal.com/api/mcp so agents can query it directly.
+- This site speaks MCP at https://www.adityaperswal.com/api/mcp so agents can query it directly.
 - A WebMCP in-browser API is exposed on the page so agents running in the browser can call its tools without a server round-trip.

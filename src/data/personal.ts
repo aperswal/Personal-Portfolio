@@ -5,7 +5,7 @@ export const siteConfig = {
   company: "Amazon",
   description:
     "Software engineer at Amazon. UIUC Computer Engineering. Builder of things that last.",
-  url: "https://adiperswal.com",
+  url: "https://www.adityaperswal.com",
   email: "adityaperswal@gmail.com",
   phone: "(847) 767-3725",
   location: "Seattle, WA",

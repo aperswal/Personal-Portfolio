@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "portfolio": {
-      "url": "https://adiperswal.com/api/mcp",
+      "url": "https://www.adityaperswal.com/api/mcp",
       "name": "Adi Perswal Portfolio",
       "description": "Query structured portfolio data: experience, projects, books, media, and more. The same tools are exposed in-browser via the W3C WebMCP API (navigator.modelContext).",
       "transport": "streamable-http"
