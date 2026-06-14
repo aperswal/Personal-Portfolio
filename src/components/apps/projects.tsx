@@ -47,7 +47,7 @@ function ProjectCard({ project }: { project: Project }) {
         href={project.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-sm inline-flex items-center gap-1 text-xs font-medium text-amber transition-colors hover:text-racing-green"
+        className="mt-sm inline-flex items-center gap-1 text-xs font-medium text-amber-text transition-colors hover:text-racing-green"
       >
         View Project
         <ExternalLink size={11} />

@@ -23,7 +23,7 @@ test.describe("Mobile iOS shell", () => {
   }) => {
     await freshMobileLoad(page);
 
-    await expect(page.locator('[aria-label="Status bar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="status-bar"]')).toBeVisible();
     await expect(page.locator('[aria-label="Open Projects"]')).toBeVisible();
     // The desktop window chrome must never appear on the phone shell.
     await expect(page.locator('[role="dialog"]')).toHaveCount(0);
@@ -137,7 +137,7 @@ test.describe("Mobile iOS shell (landscape phone)", () => {
     await page.reload();
     await page.waitForSelector('[aria-label="Open Projects"]');
 
-    await expect(page.locator('[aria-label="Status bar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="status-bar"]')).toBeVisible();
     // The desktop window chrome must never appear on the phone shell.
     await expect(page.locator('[role="dialog"]')).toHaveCount(0);
   });

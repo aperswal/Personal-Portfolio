@@ -9,6 +9,7 @@
 
   --color-gold: #d4a843;
   --color-amber: #c4930a;
+  --color-amber-text: #8a6708;
   --color-pale-gold: #e8d5a3;
   --color-cream: #f5f0e6;
   --color-warm-gray: #6b6158;
@@ -55,4 +56,15 @@ body {
 ::selection {
   background: rgba(160, 122, 32, 0.3);
   color: var(--color-obsidian);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

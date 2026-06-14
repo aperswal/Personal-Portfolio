@@ -26,7 +26,7 @@ export function HomeGrid({ apps }: { apps: AppDefinition[] }) {
   return (
     <div
       className="min-h-dvh w-full bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/mobile_vertical_wallpaper.png')" }}
+      style={{ backgroundImage: "url('/mobile_vertical_wallpaper.webp')" }}
     >
       <div
         className="grid grid-cols-4 gap-x-4 gap-y-6 px-6"

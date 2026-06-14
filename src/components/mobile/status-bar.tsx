@@ -41,7 +41,8 @@ export function StatusBar({ tone = "light" }: { tone?: "light" | "dark" }) {
         tone === "dark" ? "text-deep-brown" : "text-white"
       }`}
       style={{ paddingTop: "max(env(safe-area-inset-top), 0.75rem)" }}
-      aria-label="Status bar"
+      aria-hidden="true"
+      data-testid="status-bar"
     >
       <span className="text-sm font-semibold tabular-nums">
         {formatStatusBarClock(now)}

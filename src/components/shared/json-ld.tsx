@@ -1,6 +1,5 @@
 interface JsonLdSchema {
   "@context": string;
-  "@type": string;
   [key: string]: unknown;
 }
 

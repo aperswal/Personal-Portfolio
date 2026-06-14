@@ -31,7 +31,7 @@ export function GalleryContent() {
           >
             <X size={18} strokeWidth={1.5} />
           </button>
-          <span className="text-xs text-cream/40">
+          <span className="text-xs text-cream/60">
             {selectedIndex + 1} / {artworks.length}
           </span>
         </div>

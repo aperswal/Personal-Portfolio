@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useRef, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, FOCUS_RING } from "@/lib/utils";
 import { useWindowManager } from "./window-manager";
 import { clampPositionToViewport } from "./window-reducer";
 import { useViewportSize } from "@/lib/use-viewport-size";
@@ -63,9 +69,26 @@ export function DesktopWindow({ app, zIndex }: DesktopWindowProps) {
 
   const windowRef = useRef<HTMLDivElement>(null);
 
+  // Move focus to the window when it opens so keyboard users land inside it and
+  // Escape works immediately. Windows are intentionally non-modal (multi-window),
+  // so this is a one-time focus on mount, not a trap.
+  useEffect(() => {
+    windowRef.current?.focus();
+  }, []);
+
   const handlePointerDown = useCallback(() => {
     bringToFront(app.id);
   }, [app.id, bringToFront]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeWindow(app.id);
+      }
+    },
+    [app.id, closeWindow],
+  );
 
   // --- Drag ---
 
@@ -183,15 +206,19 @@ export function DesktopWindow({ app, zIndex }: DesktopWindowProps) {
     <div
       ref={windowRef}
       role="dialog"
+      tabIndex={-1}
       aria-label={app.title}
       className={cn(
         "flex flex-col overflow-hidden border border-deep-brown/15 bg-cream shadow-xl",
+        FOCUS_RING,
         win.isMaximized ? "fixed inset-0 z-[10000] !rounded-none" : "absolute rounded-lg",
       )}
       style={style}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onKeyDown={handleKeyDown}
+      onFocusCapture={() => bringToFront(app.id)}
     >
       {/* Resize handles — hidden when maximized */}
       {!win.isMaximized && (
@@ -226,49 +253,64 @@ export function DesktopWindow({ app, zIndex }: DesktopWindowProps) {
       >
         {/* Traffic light buttons */}
         <div
-          className="group/lights flex items-center gap-[6px]"
+          className="group/lights -ml-1.5 flex items-center -space-x-1.5"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => closeWindow(app.id)}
             aria-label={`Close ${app.title}`}
-            className="flex h-3 w-3 items-center justify-center rounded-full bg-error transition-opacity hover:opacity-80"
+            className={cn(
+              "flex h-6 w-6 items-center justify-center rounded-full transition-opacity hover:opacity-80",
+              FOCUS_RING,
+            )}
           >
-            <X
-              size={8}
-              strokeWidth={2.5}
-              className="text-traffic-close opacity-0 transition-opacity group-hover/lights:opacity-100"
-            />
+            <span className="flex h-3 w-3 items-center justify-center rounded-full bg-error">
+              <X
+                size={8}
+                strokeWidth={2.5}
+                className="text-traffic-close opacity-0 transition-opacity group-hover/lights:opacity-100"
+              />
+            </span>
           </button>
           <button
             onClick={() => minimizeWindow(app.id)}
             aria-label={`Minimize ${app.title}`}
-            className="flex h-3 w-3 items-center justify-center rounded-full bg-warning transition-opacity hover:opacity-80"
+            className={cn(
+              "flex h-6 w-6 items-center justify-center rounded-full transition-opacity hover:opacity-80",
+              FOCUS_RING,
+            )}
           >
-            <Minus
-              size={8}
-              strokeWidth={2.5}
-              className="text-traffic-minimize opacity-0 transition-opacity group-hover/lights:opacity-100"
-            />
+            <span className="flex h-3 w-3 items-center justify-center rounded-full bg-warning">
+              <Minus
+                size={8}
+                strokeWidth={2.5}
+                className="text-traffic-minimize opacity-0 transition-opacity group-hover/lights:opacity-100"
+              />
+            </span>
           </button>
           <button
             onClick={() => maximizeWindow(app.id)}
             aria-label={`${win.isMaximized ? "Restore" : "Maximize"} ${app.title}`}
-            className="flex h-3 w-3 items-center justify-center rounded-full bg-success transition-opacity hover:opacity-80"
-          >
-            {win.isMaximized ? (
-              <Minimize2
-                size={7}
-                strokeWidth={2.5}
-                className="text-traffic-maximize opacity-0 transition-opacity group-hover/lights:opacity-100"
-              />
-            ) : (
-              <Maximize2
-                size={7}
-                strokeWidth={2.5}
-                className="text-traffic-maximize opacity-0 transition-opacity group-hover/lights:opacity-100"
-              />
+            className={cn(
+              "flex h-6 w-6 items-center justify-center rounded-full transition-opacity hover:opacity-80",
+              FOCUS_RING,
             )}
+          >
+            <span className="flex h-3 w-3 items-center justify-center rounded-full bg-success">
+              {win.isMaximized ? (
+                <Minimize2
+                  size={7}
+                  strokeWidth={2.5}
+                  className="text-traffic-maximize opacity-0 transition-opacity group-hover/lights:opacity-100"
+                />
+              ) : (
+                <Maximize2
+                  size={7}
+                  strokeWidth={2.5}
+                  className="text-traffic-maximize opacity-0 transition-opacity group-hover/lights:opacity-100"
+                />
+              )}
+            </span>
           </button>
         </div>
 

@@ -76,7 +76,7 @@ function DesktopSurface({ apps, initialAppId }: DesktopProps) {
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden bg-parchment bg-[url('/wallpaper.png')] bg-cover bg-center bg-no-repeat"
+      className="relative h-full w-full overflow-hidden bg-parchment bg-[url('/wallpaper.webp')] bg-cover bg-center bg-no-repeat"
       onPointerDown={handleBackgroundPointerDown}
       onKeyDown={handleSurfaceKeyDown}
     >

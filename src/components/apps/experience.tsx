@@ -4,7 +4,7 @@ function RoleSection({ role, isFirst }: { role: Role; isFirst: boolean }) {
   return (
     <div className={isFirst ? "" : "mt-md border-t border-deep-brown/6 pt-md"}>
       <div className="flex items-start justify-between gap-md">
-        <p className="text-sm font-medium text-amber">{role.title}</p>
+        <p className="text-sm font-medium text-amber-text">{role.title}</p>
         <p className="shrink-0 text-xs text-warm-gray">{role.period}</p>
       </div>
 

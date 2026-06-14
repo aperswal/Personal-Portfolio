@@ -5,7 +5,7 @@ import { Layers } from "lucide-react";
 import { useWindowManager } from "./window-manager";
 import { useViewportSize } from "@/lib/use-viewport-size";
 import type { AppDefinition } from "./types";
-import { cn, ICON_CONTAINER_BASE } from "@/lib/utils";
+import { cn, ICON_CONTAINER_BASE, FOCUS_RING } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DockProps {
@@ -66,6 +66,7 @@ export function Dock({ apps }: DockProps) {
                   "hover:-translate-y-1 hover:scale-110",
                   ICON_CONTAINER_BASE,
                   "active:scale-95",
+                  FOCUS_RING,
                   iconSize,
                 )}
               >
@@ -111,6 +112,7 @@ export function Dock({ apps }: DockProps) {
                       "hover:-translate-y-1 hover:scale-110",
                       "bg-cream/50 border border-dashed border-deep-brown/15 text-warm-gray shadow-sm",
                       "active:scale-95",
+                      FOCUS_RING,
                       iconSize,
                     )}
                   >
@@ -140,11 +142,12 @@ export function Dock({ apps }: DockProps) {
                       "hover:-translate-y-1 hover:scale-110",
                       "bg-cream/50 border border-dashed border-deep-brown/15 text-warm-gray shadow-sm",
                       "active:scale-95",
+                      FOCUS_RING,
                       iconSize,
                     )}
                   >
                     <Layers size={compact ? 14 : 18} strokeWidth={1.5} />
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber text-[10px] font-medium text-white">
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber text-[10px] font-medium text-obsidian">
                       {overflowMinimized.length}
                     </span>
                   </button>
@@ -170,7 +173,10 @@ export function Dock({ apps }: DockProps) {
                           restoreWindow(win.id);
                           setStackOpen(false);
                         }}
-                        className="flex items-center gap-md rounded-lg px-md py-sm text-left transition-colors hover:bg-cream"
+                        className={cn(
+                          "flex items-center gap-md rounded-lg px-md py-sm text-left transition-colors hover:bg-cream",
+                          FOCUS_RING,
+                        )}
                       >
                         <span className="text-lg opacity-60">{app.icon}</span>
                         <span className="text-xs font-medium text-deep-brown">
