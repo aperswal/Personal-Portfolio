@@ -5,7 +5,10 @@ import {
   getSection,
   searchPortfolio,
   SECTION_NAMES,
+  BOOK_STATUSES,
+  MOVIE_TYPES,
 } from "./tools";
+import { PROJECT_TAGS } from "@/data/projects";
 
 export function createPortfolioMcpServer(): McpServer {
   const server = new McpServer({
@@ -23,12 +26,15 @@ export function createPortfolioMcpServer(): McpServer {
 
   server.tool(
     "get_section",
-    `Get detailed data for a specific portfolio section. Sections: ${SECTION_NAMES.join(", ")}. Supports optional filters: 'category' for projects (featured, tool, web-app, extension, ai-ml), 'status' for books (favorites, reading, want-to-read), 'type' for movies (movie, series).`,
+    `Get detailed data for a specific portfolio section. Sections: ${SECTION_NAMES.join(", ")}. Optional filters: 'category' tags projects (${PROJECT_TAGS.join(", ")}) — a project may match several; 'status' filters books (${BOOK_STATUSES.join(", ")}); 'type' filters movies (${MOVIE_TYPES.join(", ")}).`,
     {
       section: z.enum(SECTION_NAMES).describe("The section to retrieve"),
-      category: z.string().optional().describe("Filter projects by category"),
-      status: z.string().optional().describe("Filter books by reading status"),
-      type: z.string().optional().describe("Filter movies by type (movie or series)"),
+      category: z
+        .enum(PROJECT_TAGS)
+        .optional()
+        .describe("Filter projects by tag (a project may have several)"),
+      status: z.enum(BOOK_STATUSES).optional().describe("Filter books by reading status"),
+      type: z.enum(MOVIE_TYPES).optional().describe("Filter movies by type"),
     },
     async ({ section, category, status, type }) => ({
       content: [

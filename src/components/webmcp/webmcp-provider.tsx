@@ -6,7 +6,10 @@ import {
   getSection,
   searchPortfolio,
   SECTION_NAMES,
+  BOOK_STATUSES,
+  MOVIE_TYPES,
 } from "@/lib/mcp/tools";
+import { PROJECT_TAGS } from "@/data/projects";
 
 // The published @mcp-b/webmcp-types global types model `registerTool` with heavily
 // overloaded generics tuned for literal schema inference. We only need the loose
@@ -43,7 +46,7 @@ const portfolioTools: WebMcpTool[] = [
   },
   {
     name: "get_section",
-    description: `Get detailed data for a specific portfolio section. Sections: ${SECTION_NAMES.join(", ")}. Supports optional filters: 'category' for projects (featured, tool, web-app, extension, ai-ml), 'status' for books (favorites, reading, want-to-read), 'type' for movies (movie, series).`,
+    description: `Get detailed data for a specific portfolio section. Sections: ${SECTION_NAMES.join(", ")}. Optional filters: 'category' tags projects (${PROJECT_TAGS.join(", ")}) — a project may match several; 'status' filters books (${BOOK_STATUSES.join(", ")}); 'type' filters movies (${MOVIE_TYPES.join(", ")}).`,
     inputSchema: {
       type: "object",
       properties: {
@@ -52,9 +55,21 @@ const portfolioTools: WebMcpTool[] = [
           enum: [...SECTION_NAMES],
           description: "The section to retrieve",
         },
-        category: { type: "string", description: "Filter projects by category" },
-        status: { type: "string", description: "Filter books by reading status" },
-        type: { type: "string", description: "Filter movies by type (movie or series)" },
+        category: {
+          type: "string",
+          enum: [...PROJECT_TAGS],
+          description: "Filter projects by tag (a project may have several)",
+        },
+        status: {
+          type: "string",
+          enum: [...BOOK_STATUSES],
+          description: "Filter books by reading status",
+        },
+        type: {
+          type: "string",
+          enum: [...MOVIE_TYPES],
+          description: "Filter movies by type",
+        },
       },
       required: ["section"],
     },

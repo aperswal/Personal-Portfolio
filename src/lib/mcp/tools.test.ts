@@ -37,13 +37,13 @@ describe("getSection", () => {
     expect((result.data as unknown[]).length).toBeGreaterThan(0);
   });
 
-  it("filters projects by category", () => {
-    const result = getSection("projects", { category: "featured" });
+  it("filters projects by tag (a project may carry several)", () => {
+    const result = getSection("projects", { category: "ai-ml" });
     expect(result).toHaveProperty("data");
-    const data = result.data as Array<{ category: string }>;
+    const data = result.data as Array<{ tags: string[] }>;
     expect(data.length).toBeGreaterThan(0);
     for (const p of data) {
-      expect(p.category).toBe("featured");
+      expect(p.tags).toContain("ai-ml");
     }
   });
 

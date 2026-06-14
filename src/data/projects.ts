@@ -1,30 +1,52 @@
-export type ProjectCategory = "featured" | "tool" | "web-app" | "extension" | "ai-ml";
+/**
+ * Controlled vocabulary of project tags. A project can carry several (it is a
+ * multi-faceted thing — e.g. PhD for Dummies is a web app AND ai-ml AND
+ * education). "featured" is intentionally NOT a tag — it is a separate curation
+ * flag, so a project can be both featured and correctly typed.
+ */
+export const PROJECT_TAGS = [
+  "web-app",
+  "tool",
+  "extension",
+  "ai-ml",
+  "mobile",
+  "game",
+  "education",
+] as const;
+
+export type ProjectTag = (typeof PROJECT_TAGS)[number];
 
 export interface Project {
   title: string;
   description: string;
-  category: ProjectCategory;
+  /** Curation flag — highlighted projects, orthogonal to `tags`. */
+  featured: boolean;
+  /** What kind of thing this is; one project may legitimately have several. */
+  tags: ProjectTag[];
   tech: string[];
   link: string;
   badge?: string;
 }
 
-export const CATEGORY_LABELS: Record<ProjectCategory | "all", string> = {
-  all: "All",
-  featured: "Featured",
-  tool: "Tools",
+/** Human labels for each tag (filter chips, MCP). */
+export const TAG_LABELS: Record<ProjectTag, string> = {
   "web-app": "Web Apps",
+  tool: "Tools",
   extension: "Extensions",
   "ai-ml": "AI / ML",
+  mobile: "Mobile",
+  game: "Games",
+  education: "Education",
 };
 
 export const projects: Project[] = [
-  // ── Featured ──���───────────────────────────────────────────────────────
+  // ── Featured ──────────────────────────────────────────────────────────
   {
     title: "Coding by Hand",
     description:
       'A course that teaches Python and deep learning from scratch — from print("hello") to a transformer built by hand in pure Python — for someone who has never written a line of code, with a parallel Rust track that goes all the way down to computer architecture. Every lesson pairs one running analogy, a beat of history, code you type and run yourself, and a textbook-style diagram. Built on the belief that learning to code is about thinking logically and understanding the real limits of computers, not memorizing syntax.',
-    category: "featured",
+    featured: true,
+    tags: ["web-app", "education", "ai-ml"],
     tech: ["TypeScript", "Next.js", "MDX", "Tailwind CSS", "Rust", "Zod"],
     link: "https://codingbyhand.com",
     badge: "Live",
@@ -33,7 +55,8 @@ export const projects: Project[] = [
     title: "Prose",
     description:
       "A minimalist iOS writing app with a live Hemingway-style editor: your readability grade updates as you type, and one toggle highlights long sentences, passive voice, adverbs, inflated vocabulary, and filler words right where you wrote them. Fast like Apple Notes, clean like Notion, and deliberately free of AI, cloud, and accounts — your half-formed ideas stay on device and get better over time, like wine.",
-    category: "featured",
+    featured: true,
+    tags: ["mobile"],
     tech: ["Swift", "SwiftUI", "SwiftData", "NaturalLanguage"],
     link: "https://github.com/aperswal/Prose",
     badge: "iOS App",
@@ -42,7 +65,8 @@ export const projects: Project[] = [
     title: "PhD for Dummies",
     description:
       "Famous AI/ML/RL papers explained in layers, each with diagrams and a live simulation you can reach in and break. I built it because I wanted to keep up with the field but had never learned to read a paper — I'd hit a wall of symbols on page one and close it. Every paper climbs from a version a five-year-old could follow up to the one a peer researcher would argue with, and the demo runs the paper's real rules, so you learn the mechanism by poking it rather than watching a cartoon of it. Under the hood a chain of Claude skills does the work — thinking, writing the layers, building and reviewing the simulations, writing tests, generating diagrams, converting them to WebP and pushing them to blob storage — so a paper goes from PDF to something I actually understand before I write a line of implementation.",
-    category: "featured",
+    featured: true,
+    tags: ["web-app", "ai-ml", "education"],
     tech: [
       "TypeScript",
       "Next.js",
@@ -58,7 +82,8 @@ export const projects: Project[] = [
     title: "AutoDocs",
     description:
       "Open-source documentation engine that parses any repo's AST with tree-sitter and SCIP, builds a dependency graph, and walks it to generate accurate, dependency-aware docs. Ships with a built-in MCP server so coding agents can deep-search your code via HTTP.",
-    category: "featured",
+    featured: true,
+    tags: ["tool", "ai-ml"],
     tech: [
       "Python",
       "FastAPI",
@@ -76,7 +101,8 @@ export const projects: Project[] = [
     title: "Personal Portfolio",
     description:
       "Interactive portfolio website designed to mimic the macOS desktop experience, featuring draggable windows, functional dock, and realistic desktop environment.",
-    category: "featured",
+    featured: true,
+    tags: ["web-app"],
     tech: ["TypeScript", "React", "Next.js", "TailwindCSS"],
     link: "https://github.com/aperswal/Personal-Portfolio",
   },
@@ -84,7 +110,8 @@ export const projects: Project[] = [
     title: "HyppoHealth",
     description:
       "A platform reshaping how Americans navigate healthcare with free tools and expert-backed resources for understanding and optimizing healthcare costs. Features include insurance comparison tools, cost calculators, and comprehensive educational resources.",
-    category: "featured",
+    featured: true,
+    tags: ["web-app"],
     tech: ["Web Development", "Healthcare Systems", "UI/UX Design"],
     link: "https://hyppohealth.com/",
   },
@@ -92,7 +119,8 @@ export const projects: Project[] = [
     title: "CloudFormation To Terraform",
     description:
       "Popular open-source tool that converts AWS CloudFormation templates to Terraform configurations with both web and CLI interfaces. Features include multi-file support, state file generation, security analysis, and documentation generation.",
-    category: "featured",
+    featured: true,
+    tags: ["tool"],
     tech: ["Python", "Flask", "AWS", "Terraform"],
     link: "https://github.com/aperswal/CloudFormation_To_Terraform",
     badge: "42 stars",
@@ -101,7 +129,8 @@ export const projects: Project[] = [
     title: "Quick Transcriber",
     description:
       "Real-time speech-to-text application that locally transcribes your voice and types it at cursor position, with no internet required. Features always-on-top monitoring window and global keyboard shortcuts.",
-    category: "featured",
+    featured: true,
+    tags: ["tool", "ai-ml"],
     tech: ["Python", "Vosk", "PyQt6", "SoundDevice"],
     link: "https://github.com/aperswal/quick-transcriber",
   },
@@ -111,7 +140,8 @@ export const projects: Project[] = [
     title: "Pricing Optimizer",
     description:
       "Calculates the price that maximizes profit per SKU using competitor data, customer willingness-to-pay curves, and elasticity math.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Analytics", "E-Commerce"],
     link: "https://save10hours.com",
   },
@@ -119,7 +149,8 @@ export const projects: Project[] = [
     title: "High-Value Customer Finder",
     description:
       "Identifies the audience segment that values your product at 30-50% higher prices, with their pain points, hangouts, and the exact words they use.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Market Research", "E-Commerce"],
     link: "https://save10hours.com",
   },
@@ -127,7 +158,8 @@ export const projects: Project[] = [
     title: "Creator ROI Screener",
     description:
       "Vets influencers by real engagement rates, past conversion results, fees, and whether they'll be profitable at your margins.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Analytics", "Social Media"],
     link: "https://save10hours.com",
   },
@@ -135,7 +167,8 @@ export const projects: Project[] = [
     title: "3PL Cost Comparison",
     description:
       "Ranks third-party logistics providers by actual landed cost based on your products, volumes, and customer geography.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Logistics", "E-Commerce"],
     link: "https://save10hours.com",
   },
@@ -143,7 +176,8 @@ export const projects: Project[] = [
     title: "Manufacturer Matcher",
     description:
       "Matches suppliers to your volume, quality requirements, and payment terms with verified reviews and real lead times.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Supply Chain", "E-Commerce"],
     link: "https://save10hours.com",
   },
@@ -151,7 +185,8 @@ export const projects: Project[] = [
     title: "Inventory Reorder Calculator",
     description:
       "Generates exact reorder quantities and a month-by-month PO schedule based on sales velocity, seasonality, and supplier lead times.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Inventory Management", "E-Commerce"],
     link: "https://save10hours.com",
   },
@@ -159,7 +194,8 @@ export const projects: Project[] = [
     title: "Support Root Cause Analyzer",
     description:
       "Finds the 3-5 root causes generating most of your support tickets and gives specific fixes that eliminate them at the source.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Customer Support", "Analytics"],
     link: "https://save10hours.com",
   },
@@ -167,17 +203,19 @@ export const projects: Project[] = [
     title: "Automation Blueprint Builder",
     description:
       "Turns a manual process description into a Zapier/Make-ready playbook with triggers, actions, filters, and field mappings.",
-    category: "tool",
+    featured: false,
+    tags: ["tool"],
     tech: ["Automation", "Zapier", "Make"],
     link: "https://save10hours.com",
   },
 
-  // ── Web Applications ──────��───────────────────────────────────────────
+  // ── Web Applications ──────────────────────────────────────────────────
   {
     title: "Email Verifier API",
     description:
       "Serverless email verification service built on AWS Lambda that validates emails through syntax checks, disposable email detection, MX record verification, and SMTP checking via AWS SES, with response caching in DynamoDB.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app", "tool"],
     tech: ["JavaScript", "Node.js", "AWS Lambda", "DynamoDB", "SES"],
     link: "https://github.com/aperswal/Email-Verifier-API",
   },
@@ -185,7 +223,8 @@ export const projects: Project[] = [
     title: "Leads List Cleaner",
     description:
       "Web application that leverages the Email Verifier API to process marketing lead lists, detect invalid or disposable email addresses, and improve overall campaign deliverability and effectiveness.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app", "tool"],
     tech: ["TypeScript", "React", "AWS Integration"],
     link: "https://github.com/aperswal/Leads-List-Cleaner",
   },
@@ -193,7 +232,8 @@ export const projects: Project[] = [
     title: "Social Media Poster",
     description:
       "Automation tool for scheduling and posting content across multiple social media platforms with analytics tracking.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app", "tool"],
     tech: ["TypeScript", "Social APIs"],
     link: "https://github.com/aperswal/social-media-poster",
   },
@@ -201,7 +241,8 @@ export const projects: Project[] = [
     title: "WordFillWithFriends",
     description:
       "Multiplayer Wordle-style word guessing game with competitive tier progression (Bronze to Diamond), global leaderboards, friend challenges, and customizable profiles with real-time updates.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app", "game"],
     tech: ["TypeScript", "React", "Firebase", "TailwindCSS"],
     link: "https://github.com/aperswal/WordFillWithFriends",
   },
@@ -209,7 +250,8 @@ export const projects: Project[] = [
     title: "Figma Clone",
     description:
       "Fully-functional Figma clone with real-time collaboration features including multi-cursors, cursor chat, reactions, and comments. Supports shape creation, image upload, freeform drawing, element customization, and full history with undo/redo functionality.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app"],
     tech: ["TypeScript", "Next.js", "Fabric.js", "Liveblocks", "Tailwind CSS"],
     link: "https://github.com/aperswal/Figma_Clone",
   },
@@ -217,7 +259,8 @@ export const projects: Project[] = [
     title: "Google Drive Clone",
     description:
       "File storage and sharing platform built to store blog posts from content-generator for freelance clients. Features file upload, organization, and sharing functionality similar to Google Drive.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app"],
     tech: ["JavaScript", "React", "Firebase", "Firestore", "Authentication"],
     link: "https://github.com/aperswal/Google-Drive-Clone",
   },
@@ -225,7 +268,8 @@ export const projects: Project[] = [
     title: "Notepad Clone",
     description:
       "Desktop text editor application built as a first foray into desktop software development. Features standard text editing capabilities, file operations, and a customizable interface inspired by Microsoft Notepad.",
-    category: "web-app",
+    featured: false,
+    tags: ["tool"],
     tech: ["Java", "Java Extended Library", "Java IO", "AWT", "Spring"],
     link: "https://github.com/aperswal/notepad_clone",
   },
@@ -233,7 +277,8 @@ export const projects: Project[] = [
     title: "Crossy Road Clone",
     description:
       "Recreation of the popular Crossy Road game with similar mechanics, obstacles, and character movement.",
-    category: "web-app",
+    featured: false,
+    tags: ["game", "web-app"],
     tech: ["JavaScript", "Canvas API"],
     link: "https://github.com/aperswal/Crossy_Road_Clone",
   },
@@ -241,7 +286,8 @@ export const projects: Project[] = [
     title: "Productivity Manager",
     description:
       "Integration tool that extracts tasks from Notion databases and automatically block schedules them into Google Calendar, creating a streamlined workflow for time management and deadline tracking.",
-    category: "web-app",
+    featured: false,
+    tags: ["tool"],
     tech: ["Python", "Notion API", "Google Calendar API"],
     link: "https://github.com/aperswal/Productivity-Manager",
   },
@@ -249,7 +295,8 @@ export const projects: Project[] = [
     title: "Options Contract Pricing",
     description:
       "Advanced financial analytics platform for options traders with four specialized modules. Features include Black-Scholes modeling, Monte Carlo simulations, SABR volatility modeling, sentiment analysis from institutional trading data and Reddit, and mispriced contract identification through a public API.",
-    category: "web-app",
+    featured: false,
+    tags: ["web-app", "tool"],
     tech: [
       "Python",
       "AWS Lambda",
@@ -267,7 +314,8 @@ export const projects: Project[] = [
     title: "Skool Sentiment Analysis",
     description:
       "Chrome extension that analyzes text on Skool.com, identifying frequently used phrases and assessing overall sentiment (from Super Negative to Super Positive) to help users gauge the mood of discussions. Processes text directly in the browser for privacy.",
-    category: "extension",
+    featured: false,
+    tags: ["extension", "ai-ml"],
     tech: ["JavaScript", "HTML", "CSS", "Chrome API"],
     link: "https://github.com/aperswal/Skool_Sentiment_Analysis_Chrome_Extension",
   },
@@ -275,7 +323,8 @@ export const projects: Project[] = [
     title: "Skool Active Members",
     description:
       "Chrome extension that creates a leaderboard of the most active participants in Skool communities, helping admins and members identify key contributors. Core functionality uses proprietary algorithms to track engagement metrics.",
-    category: "extension",
+    featured: false,
+    tags: ["extension"],
     tech: ["JavaScript", "HTML", "CSS", "Chrome API"],
     link: "https://github.com/aperswal/Skool_Active_Members_Chrome_Extension",
   },
@@ -283,17 +332,19 @@ export const projects: Project[] = [
     title: "Skool Inactive Members",
     description:
       "Chrome extension that automatically scans Skool communities to identify members inactive for over 30 days. Features automated page navigation, data extraction of member profiles, and CSV export functionality for easy re-engagement outreach.",
-    category: "extension",
+    featured: false,
+    tags: ["extension"],
     tech: ["JavaScript", "HTML", "Chrome API", "Manifest v3"],
     link: "https://github.com/aperswal/Skool_Inactive_Members_Chrome_Extension",
   },
 
-  // ── AI / ML ────────────────────────────────────────────���──────────────
+  // ── AI / ML ───────────────────────────────────────────────────────────
   {
     title: "Diabetes Heart Parkinsons Predictor",
     description:
       "Web application with multiple machine learning models to predict Diabetes, Heart Disease, and Parkinson's from patient data. Includes pre-trained models stored in the application for immediate predictions via an interactive Streamlit interface.",
-    category: "ai-ml",
+    featured: false,
+    tags: ["ai-ml", "web-app"],
     tech: ["Python", "Jupyter Notebook", "Streamlit", "Machine Learning"],
     link: "https://github.com/aperswal/Diabetes_Hear_Parkinsons_Predictor",
   },
@@ -301,7 +352,8 @@ export const projects: Project[] = [
     title: "Content Generator",
     description:
       "AI SEO Blog Generator that creates optimized content using OpenAI's GPT model and sources relevant images via Pexels API. Features AIDA and PAS copywriting frameworks, keyword optimization, and customizable blog structures.",
-    category: "ai-ml",
+    featured: false,
+    tags: ["ai-ml", "tool"],
     tech: ["Python", "OpenAI API", "Pexels API", "Flask"],
     link: "https://github.com/aperswal/Content-Generator",
   },

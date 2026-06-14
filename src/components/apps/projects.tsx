@@ -5,14 +5,21 @@ import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   projects,
-  CATEGORY_LABELS,
+  PROJECT_TAGS,
+  TAG_LABELS,
   type Project,
-  type ProjectCategory,
+  type ProjectTag,
 } from "@/data/projects";
 
-type Filter = ProjectCategory | "all";
+type Filter = "all" | "featured" | ProjectTag;
 
-const FILTERS: Filter[] = ["all", "featured", "tool", "web-app", "extension", "ai-ml"];
+const FILTERS: Filter[] = ["all", "featured", ...PROJECT_TAGS];
+
+const FILTER_LABELS: Record<Filter, string> = {
+  all: "All",
+  featured: "Featured",
+  ...TAG_LABELS,
+};
 
 function ProjectCard({ project }: { project: Project }) {
   return (
@@ -60,7 +67,11 @@ export function ProjectsContent() {
   const [filter, setFilter] = useState<Filter>("all");
 
   const filtered =
-    filter === "all" ? projects : projects.filter((p) => p.category === filter);
+    filter === "all"
+      ? projects
+      : filter === "featured"
+        ? projects.filter((p) => p.featured)
+        : projects.filter((p) => p.tags.includes(filter));
 
   return (
     <div className="flex h-full flex-col">
@@ -78,7 +89,7 @@ export function ProjectsContent() {
                   : "text-warm-gray hover:bg-deep-brown/5 hover:text-deep-brown",
               )}
             >
-              {CATEGORY_LABELS[f]}
+              {FILTER_LABELS[f]}
             </button>
           ))}
           <span className="ml-auto text-xs text-warm-gray">

@@ -1,6 +1,6 @@
 import { siteConfig, socialLinks } from "@/data/personal";
 import { workExperience } from "@/data/experience";
-import { projects, CATEGORY_LABELS } from "@/data/projects";
+import { projects, PROJECT_TAGS, type ProjectTag } from "@/data/projects";
 import {
   coverLetterParagraphs,
   coverLetterClosing,
@@ -32,6 +32,10 @@ export const SECTION_NAMES = [
 
 export type SectionName = (typeof SECTION_NAMES)[number];
 
+/** Valid filter values per section (also enumerated in the MCP tool schema). */
+export const BOOK_STATUSES = ["favorites", "reading", "want-to-read"] as const;
+export const MOVIE_TYPES = ["movie", "series"] as const;
+
 // ── Tool 1: get_portfolio_overview ─────────────────────────────────────
 
 export function getPortfolioOverview() {
@@ -55,7 +59,7 @@ export function getPortfolioOverview() {
         name: "projects",
         description: "Portfolio projects",
         count: projects.length,
-        filters: { category: Object.keys(CATEGORY_LABELS).filter((k) => k !== "all") },
+        filters: { category: [...PROJECT_TAGS] },
       },
       { name: "cover-letter", description: "Personal cover letter" },
       { name: "contact", description: "Contact information and social links" },
@@ -63,13 +67,13 @@ export function getPortfolioOverview() {
         name: "books",
         description: "Reading library",
         count: books.length,
-        filters: { status: ["favorites", "reading", "want-to-read"] },
+        filters: { status: [...BOOK_STATUSES] },
       },
       {
         name: "movies",
         description: "Movies and TV series",
         count: movies.length,
-        filters: { type: ["movie", "series"] },
+        filters: { type: [...MOVIE_TYPES] },
       },
       { name: "music", description: "Music playlists", count: totalSongs },
       { name: "artworks", description: "Favorite artworks", count: artworks.length },
@@ -103,7 +107,7 @@ export function getSection(section: string, filters?: SectionFilters) {
 
     case "projects": {
       const filtered = filters?.category
-        ? projects.filter((p) => p.category === filters.category)
+        ? projects.filter((p) => p.tags.includes(filters.category as ProjectTag))
         : projects;
       return { section: "projects", count: filtered.length, data: filtered };
     }
@@ -210,7 +214,7 @@ function buildSearchIndex(): SearchEntry[] {
     entries.push({
       section: "projects",
       title: p.title,
-      text: [p.title, p.description, p.category, ...p.tech, p.badge ?? ""]
+      text: [p.title, p.description, ...p.tags, ...p.tech, p.badge ?? ""]
         .join(" ")
         .toLowerCase(),
       data: p as unknown as Record<string, unknown>,
