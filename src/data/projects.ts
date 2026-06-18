@@ -62,6 +62,16 @@ export const projects: Project[] = [
     badge: "iOS App",
   },
   {
+    title: "Prose-Agent",
+    description:
+      "The Prose engine from my iOS writing app, turned into a deterministic API that a coding agent loops on. An agent sends a markdown draft and gets back exactly what to fix and where: the long sentence, the inflated word with its plain replacement, the spot in the source. It applies the edits and sends the draft again, until the verdict comes back clean. There is no model behind it, so the same draft always returns the same notes, and an agent can lean on it without the answer drifting. It connects over MCP, so any agent picks up the tool from one URL, and the whole thing runs on a single Cloudflare Worker.",
+    featured: true,
+    tags: ["tool"],
+    tech: ["TypeScript", "Cloudflare Workers", "MCP", "Zod", "mdast", "Vitest"],
+    link: "https://github.com/aperswal/Prose-Agent",
+    badge: "MCP Server",
+  },
+  {
     title: "PhD for Dummies",
     description:
       "Famous AI/ML/RL papers explained in layers, each with diagrams and a live simulation you can reach in and break. I built it because I wanted to keep up with the field but had never learned to read a paper — I'd hit a wall of symbols on page one and close it. Every paper climbs from a version a five-year-old could follow up to the one a peer researcher would argue with, and the demo runs the paper's real rules, so you learn the mechanism by poking it rather than watching a cartoon of it. Under the hood a chain of Claude skills does the work — thinking, writing the layers, building and reviewing the simulations, writing tests, generating diagrams, converting them to WebP and pushing them to blob storage — so a paper goes from PDF to something I actually understand before I write a line of implementation.",
