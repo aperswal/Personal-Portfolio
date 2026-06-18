@@ -98,6 +98,24 @@ export const projects: Project[] = [
     badge: "195 stars",
   },
   {
+    title: "Motus",
+    description:
+      "Finds the cheapest set of flights that land a whole group in one place within the same arrival window. Each traveler lists the airports they can fly from, and Motus picks one flight per person so everyone arrives within an hour or two of each other while the group pays as little as possible. Every price is all-in, folding each person's checked and carry-on bag fees into the fare so a cheap basic fare competes fairly with a bags-included one. It runs on live RouteStack fares and ships its own Code-Mode MCP server, so an AI agent can run group searches by writing small snippets of code against a sandboxed SDK.",
+    featured: true,
+    tags: ["web-app", "tool"],
+    tech: [
+      "TypeScript",
+      "Next.js",
+      "Tailwind CSS",
+      "TanStack Query",
+      "Zustand",
+      "Zod",
+      "MCP",
+    ],
+    link: "https://motus-sable.vercel.app",
+    badge: "Live",
+  },
+  {
     title: "Personal Portfolio",
     description:
       "Interactive portfolio website designed to mimic the macOS desktop experience, featuring draggable windows, functional dock, and realistic desktop environment.",
