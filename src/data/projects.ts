@@ -72,6 +72,23 @@ export const projects: Project[] = [
     badge: "MCP Server",
   },
   {
+    title: "OpenBugbot",
+    description:
+      "Self-hosted GitHub code review that runs focused, verified Codex reviews on non-draft pull requests. Each author uses their own Codex plan while a Cloudflare Worker, Queue, and Container inspect changed code and post up to eight useful inline findings.",
+    featured: true,
+    tags: ["tool", "ai-ml"],
+    tech: [
+      "Go",
+      "TypeScript",
+      "Cloudflare Workers",
+      "Cloudflare Containers",
+      "GitHub Apps",
+      "Codex",
+    ],
+    link: "https://github.com/aperswal/openbugbot-oss",
+    badge: "Open Source",
+  },
+  {
     title: "PhD for Dummies",
     description:
       "Famous AI/ML/RL papers explained in layers, each with diagrams and a live simulation you can reach in and break. I built it because I wanted to keep up with the field but had never learned to read a paper — I'd hit a wall of symbols on page one and close it. Every paper climbs from a version a five-year-old could follow up to the one a peer researcher would argue with, and the demo runs the paper's real rules, so you learn the mechanism by poking it rather than watching a cartoon of it. Under the hood a chain of Claude skills does the work — thinking, writing the layers, building and reviewing the simulations, writing tests, generating diagrams, converting them to WebP and pushing them to blob storage — so a paper goes from PDF to something I actually understand before I write a line of implementation.",
