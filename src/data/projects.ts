@@ -89,6 +89,44 @@ export const projects: Project[] = [
     badge: "Open Source",
   },
   {
+    title: "FlexInference",
+    description:
+      "A deadline-aware LLM router across OpenAI, Gemini, and Anthropic that cuts blended cost by about 48%. You keep your existing SDK, point the base URL at it, and add one field, start_within, which says how long you can wait for the response to start. Given a duration, the router races the provider's cheaper flex tier for the model you picked and escalates to standard if the race loses, so you always get back the model you asked for. It runs on Cloudflare Workers in 300+ cities and adds a few milliseconds of routing. It fails loudly instead of quietly stripping a bad parameter, every error comes back in the shape of the SDK you called, and an MCP server lets a coding agent look up the error and fix its own mistake. Bring your own key for free at any volume, or go managed and pay from a prepaid wallet.",
+    featured: true,
+    tags: ["tool", "ai-ml"],
+    tech: ["TypeScript", "Cloudflare Workers", "D1", "KV", "Next.js", "MCP"],
+    link: "https://flexinference.com",
+    badge: "Live",
+  },
+  {
+    title: "Runway",
+    description:
+      "An AI hedge fund with one rule. Claude runs a $1,000 Alpaca brokerage account and has to pay for itself: if the portfolio returns less than its $200 monthly subscription, it gets shut down. It runs like a multi-manager fund, where a chief investment officer allocates capital and never trades, and each fund has its own manager agent that researches, trades its own book, and keeps its own notes and lessons. Capital follows results, and risk lives in the venue rather than the prompt, so every lot carries a stop and a target that the site checks every 15 minutes around the clock. The live book, research memory, and trade history are all public.",
+    featured: true,
+    tags: ["web-app", "ai-ml"],
+    tech: [
+      "TypeScript",
+      "Claude Agent SDK",
+      "Cloudflare Workers",
+      "Hono",
+      "Drizzle",
+      "D1",
+      "Alpaca API",
+    ],
+    link: "https://runway.adityaperswal.workers.dev/",
+    badge: "Live",
+  },
+  {
+    title: "gcmetrics",
+    description:
+      "Laugh leaderboards for your iMessage group chats, read straight from the Messages database on your Mac and published as a website. Each chat gets a hand-drawn card with its group photo and tables for who is funniest per message, the ten most-laughed-at messages, who laughs the most, and who gets called a word of your choice. A laugh is a haha, heart, sticker, or emoji tapback, plus any thread reply that contains lol, lmao, or ha in whatever spelling your friends mash out. Nothing personal is ever committed, and a daily job on the Mac keeps the site current.",
+    featured: true,
+    tags: ["tool", "web-app"],
+    tech: ["Python", "uv", "SQLite", "Next.js", "drawably", "Vercel Blob"],
+    link: "https://github.com/aperswal/gcmetrics",
+    badge: "Open Source",
+  },
+  {
     title: "PhD for Dummies",
     description:
       "Famous AI/ML/RL papers explained in layers, each with diagrams and a live simulation you can reach in and break. I built it because I wanted to keep up with the field but had never learned to read a paper — I'd hit a wall of symbols on page one and close it. Every paper climbs from a version a five-year-old could follow up to the one a peer researcher would argue with, and the demo runs the paper's real rules, so you learn the mechanism by poking it rather than watching a cartoon of it. Under the hood a chain of Claude skills does the work — thinking, writing the layers, building and reviewing the simulations, writing tests, generating diagrams, converting them to WebP and pushing them to blob storage — so a paper goes from PDF to something I actually understand before I write a line of implementation.",
