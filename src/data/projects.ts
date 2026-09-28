@@ -99,6 +99,16 @@ export const projects: Project[] = [
     badge: "Live",
   },
   {
+    title: "flex-race",
+    description:
+      "An npm library that races OpenAI's flex tier, which costs about half the default price, against a deadline you set. You wrap your existing OpenAI client and add one field to a Responses call, start_by, an ISO timestamp by which flex must pick up the request. If flex starts it in time you get the flex response. If the deadline passes first, or flex refuses the model, it cancels the flex attempt and runs the same request on the default tier, so the call still finishes. It keeps no model list: any model is tried, and a model with no flex tier simply falls back. Streaming stays a real SDK stream, and a callback reports which tier served each call.",
+    featured: true,
+    tags: ["tool", "ai-ml"],
+    tech: ["TypeScript", "OpenAI SDK", "Vitest", "npm"],
+    link: "https://github.com/aperswal/flex-race",
+    badge: "Open Source",
+  },
+  {
     title: "Runway",
     description:
       "An AI hedge fund with one rule. Claude runs a $1,000 Alpaca brokerage account and has to pay for itself: if the portfolio returns less than its $200 monthly subscription, it gets shut down. It runs like a multi-manager fund, where a chief investment officer allocates capital and never trades, and each fund has its own manager agent that researches, trades its own book, and keeps its own notes and lessons. Capital follows results, and risk lives in the venue rather than the prompt, so every lot carries a stop and a target that the site checks every 15 minutes around the clock. The live book, research memory, and trade history are all public.",
